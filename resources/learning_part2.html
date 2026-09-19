@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 2 · Third-Person Player</title>
+<style>
+  :root {
+    --bg: #f6f5f1;
+    --paper: #ffffff;
+    --ink: #1d1f24;
+    --muted: #5d6270;
+    --line: #e3e1da;
+    --accent: #4f63e0;
+    --accent-soft: #eceffd;
+    --tip: #1f8a55;
+    --tip-soft: #e7f5ee;
+    --warn: #b5530f;
+    --warn-soft: #fcf0e4;
+    --code-bg: #f1f0ec;
+    --c-floor: #6c80ff;
+    --c-stage: #d94040;
+    --c-plat: #ff8c33;
+    --c-plat2: #ffb366;
+    --c-step: #59cc66;
+    --c-ramp: #ffd933;
+    --c-pillar: #4d4d59;
+    --c-wall: #9999a6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #16171b; --paper: #1e2026; --ink: #e8e9ee; --muted: #a0a5b3; --line: #2f323b;
+      --accent: #8e9cff; --accent-soft: #252a45; --tip: #5fd198; --tip-soft: #1b2e25;
+      --warn: #f0a060; --warn-soft: #33261a; --code-bg: #262830;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #16171b; --paper: #1e2026; --ink: #e8e9ee; --muted: #a0a5b3; --line: #2f323b;
+    --accent: #8e9cff; --accent-soft: #252a45; --tip: #5fd198; --tip-soft: #1b2e25;
+    --warn: #f0a060; --warn-soft: #33261a; --code-bg: #262830;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-inline: 16px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 40px; padding-block: 40px 80px; }
+  @media (max-width: 860px) { .wrap { grid-template-columns: 1fr; gap: 0; padding-block: 24px 60px; } nav.toc { display: none; } }
+
+  nav.toc { position: sticky; top: 24px; align-self: start; font-size: 14px; }
+  nav.toc b { display: block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  nav.toc a { display: block; color: var(--muted); text-decoration: none; padding: 4px 0 4px 12px; border-left: 2px solid var(--line); }
+  nav.toc a:hover { color: var(--accent); border-left-color: var(--accent); }
+
+  header.hero { margin-bottom: 40px; }
+  .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(30px, 5vw, 42px); line-height: 1.15; margin: 8px 0 12px; }
+  .lede { font-size: 18px; color: var(--muted); margin: 0 0 20px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font-size: 13px; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; }
+
+  figure { margin: 24px 0; }
+  figure img { display: block; width: 100%; border-radius: 12px; border: 1px solid var(--line); }
+  figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; }
+
+  section.step { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 28px clamp(18px, 4vw, 36px); margin-bottom: 24px; }
+  section.step > h2 { display: flex; align-items: center; gap: 14px; margin: 0 0 16px; font-size: 24px; line-height: 1.25; }
+  .num { flex: none; width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: var(--accent); color: #fff; font-size: 18px; }
+  h3 { font-size: 18px; margin: 28px 0 8px; }
+  p { margin: 0 0 14px; }
+  ol, ul { padding-left: 22px; margin: 0 0 14px; }
+  li { margin-bottom: 6px; }
+  li::marker { color: var(--muted); }
+
+  code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .9em; background: var(--code-bg); padding: 1px 6px; border-radius: 5px; }
+  pre { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 14px; line-height: 1.55; background: var(--code-bg); padding: 14px 18px; border-radius: 10px; overflow-x: auto; margin: 0 0 16px; }
+  pre .c { color: var(--muted); }
+  kbd { font-family: ui-monospace, Consolas, monospace; font-size: .85em; background: var(--paper); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 0 6px; }
+  .ui { font-weight: 600; }
+
+  .callout { border-radius: 10px; padding: 14px 18px; margin: 18px 0; border-left: 4px solid; }
+  .callout p:last-child, .callout ul:last-child, .callout ol:last-child { margin-bottom: 0; }
+  .callout .label { display: block; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
+  .tip { background: var(--tip-soft); border-color: var(--tip); }
+  .tip .label { color: var(--tip); }
+  .warn { background: var(--warn-soft); border-color: var(--warn); }
+  .warn .label { color: var(--warn); }
+  .note { background: var(--accent-soft); border-color: var(--accent); }
+  .note .label { color: var(--accent); }
+
+  .table-wrap { overflow-x: auto; margin: 0 0 16px; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; border: 1px solid rgba(0,0,0,.15); }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .two { grid-template-columns: 1fr; } }
+  .card { border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .card h4 { margin: 0 0 8px; font-size: 16px; }
+  .card p:last-child, .card ol:last-child { margin-bottom: 0; }
+
+  .diagram { background: var(--code-bg); border-radius: 12px; padding: 16px; overflow-x: auto; }
+  .diagram svg { display: block; width: 100%; max-width: 520px; min-width: 300px; margin: 0 auto; }
+  .diagram svg text { fill: var(--muted); font-family: system-ui, sans-serif; }
+
+  .check { list-style: none; padding-left: 0; }
+  .check li { padding-left: 30px; position: relative; }
+  .check li::before { content: ""; position: absolute; left: 2px; top: 5px; width: 16px; height: 16px; border: 2px solid var(--accent); border-radius: 4px; }
+
+  footer { color: var(--muted); font-size: 14px; text-align: center; margin-top: 32px; }
+  footer a, nav.toc a.back { color: var(--accent); }
+  nav.toc a.back { margin-top: 14px; border-left-color: transparent; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="toc" aria-label="Contents">
+  <b>Contents</b>
+  <a href="#s1">1. Import your character</a>
+  <a href="#s2">2. Input Map</a>
+  <a href="#s3">3. The Player scene</a>
+  <a href="#s4">4. The player script</a>
+  <a href="#s5">5. The Game scene</a>
+  <a href="#s6">6. Play it</a>
+  <a href="#s7">7. Tuning</a>
+  <a href="#s8">8. Troubleshooting</a>
+  <a href="#s9">9. Challenges</a>
+  <a href="learning.html" class="back">← Lesson 1: The Map</a>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="eyebrow">3D Boss Fight Multiplayer · Lesson 2</div>
+  <h1>Your Hero: A Third-Person Player</h1>
+  <p class="lede">Put your own 3D character into the arena and control it: WASD to walk, the mouse to look around, and Space to jump. This lesson is for <b>single player</b>. Multiplayer builds on this player in a later lesson.</p>
+  <div class="meta">
+    <span class="chip">Godot 4.4</span>
+    <span class="chip">Beginner</span>
+    <span class="chip">~90 min</span>
+    <span class="chip">Needs Lesson 1</span>
+  </div>
+  <figure>
+    <img src="images/p2_ingame_spawn.png" alt="In-game third-person view: a knight character seen from behind, standing in the arena with pillars, the boss stage and platforms ahead">
+    <figcaption>What you'll build: the camera follows your character from behind, and you look around with the mouse.</figcaption>
+  </figure>
+  <div class="table-wrap"><table>
+    <tr><th>Key</th><th>Action</th></tr>
+    <tr><td><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></td><td>Walk forward, left, back and right (relative to where the camera looks)</td></tr>
+    <tr><td>Mouse</td><td>Turn the camera</td></tr>
+    <tr><td><kbd>Space</kbd></td><td>Jump</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Show the mouse again. Click inside the game to hide it.</td></tr>
+  </table></div>
+  <div class="callout note">
+    <span class="label">What you'll learn</span>
+    <ul>
+      <li>How to use your own <b>.glb</b> character and get its size and direction right</li>
+      <li>How the <b>Input Map</b> gives names to keys</li>
+      <li>How <b>CharacterBody3D</b> moves and jumps with <code>move_and_slide()</code></li>
+      <li>How to build a third-person camera with <b>SpringArm3D</b></li>
+      <li>How to keep the map, the player and the game in separate scenes</li>
+    </ul>
+  </div>
+</header>
+
+<!-- STEP 1 -->
+<section class="step" id="s1">
+  <h2><span class="num">1</span>Import your character</h2>
+  <ol>
+    <li>Drag your character's <code>.glb</code> file into the <code>character/</code> folder. In this project it's <code>character/character1.glb</code>.</li>
+    <li>That's it. <b>Don't</b> turn on Physics in the import settings. The player gets its own collision shape (a capsule) in Step 3.</li>
+  </ol>
+  <div class="callout warn"><span class="label">Why no physics on the model?</span><p>In Lesson 1, map blocks needed Trimesh collision because players stand on them. A player is different. A detailed mesh collision on a moving character is slow and snags on everything. A simple <b>capsule</b> slides smoothly over floors, ramps and steps.</p></div>
+  <h3>Check three things about your model</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Check</th><th>What you want</th><th>Our knight</th></tr>
+    <tr><td><b>Size</b></td><td>About 1.6–2 m tall</td><td>Tinkercad exports in millimeters, so the knight comes in 71 m tall. Scale it by <code>0.025</code> to make it 1.8 m.</td></tr>
+    <tr><td><b>Feet</b></td><td>The feet at Y = 0, centered over the origin</td><td>The feet are at 0, but the model is off to one side. Move it by <code>(-0.12, 0, 0.42)</code>.</td></tr>
+    <tr><td><b>Front</b></td><td>Which way the face looks</td><td>It faces <b>+Z</b>, the standard front for .glb files. We'll turn it in Step 3.</td></tr>
+  </table></div>
+  <div class="callout tip"><span class="label">How to find the scale</span><p>Scale = <b>the height you want ÷ the model's height</b>. The knight is 71 units tall and we want 1.8 m: 1.8 ÷ 71 ≈ <code>0.025</code>. Select the model and look at the orange box in the 3D view to see its height.</p></div>
+  <div class="callout note"><span class="label">About animations</span><p>The knight from Tinkercad has no skeleton and no animations, so it slides and turns but doesn't walk. That's fine for now. Animated characters (for example from Mixamo) can replace it later without changing this lesson's code.</p></div>
+</section>
+
+<!-- STEP 2 -->
+<section class="step" id="s2">
+  <h2><span class="num">2</span>Name your keys in the Input Map</h2>
+  <p>The code never says "the W key". It asks for an <b>action</b> such as <code>move_forward</code>, and the Input Map decides which key triggers it. Then you can change keys, or add a gamepad later, without touching the code.</p>
+  <ol>
+    <li>Open <span class="ui">Project → Project Settings…</span> and click the <span class="ui">Input Map</span> tab.</li>
+    <li>Type <code>move_forward</code> in the <span class="ui">Add New Action</span> box and click <span class="ui">+ Add</span>.</li>
+    <li>Click the <span class="ui">+</span> at the right of the new action, press <kbd>W</kbd>, then click <span class="ui">OK</span>.</li>
+    <li>Repeat for all five actions below.</li>
+  </ol>
+  <div class="table-wrap"><table>
+    <tr><th>Action name</th><th>Key</th></tr>
+    <tr><td><code>move_forward</code></td><td><kbd>W</kbd></td></tr>
+    <tr><td><code>move_back</code></td><td><kbd>S</kbd></td></tr>
+    <tr><td><code>move_left</code></td><td><kbd>A</kbd></td></tr>
+    <tr><td><code>move_right</code></td><td><kbd>D</kbd></td></tr>
+    <tr><td><code>jump</code></td><td><kbd>Space</kbd></td></tr>
+  </table></div>
+  <figure>
+    <img src="images/p2_input_map.png" alt="Project Settings Input Map tab listing move_forward W, move_back S, move_left A, move_right D and jump Space" loading="lazy">
+    <figcaption>Type the name in <b>Add New Action</b> (top box), then give each action its key. It should end up looking like this.</figcaption>
+  </figure>
+  <div class="callout warn"><span class="label">Spell them exactly</span><p>The names must match the script letter for letter: all lowercase, with an underscore. <code>Move_Forward</code> or <code>move forward</code> won't work, and the game prints an error saying the action doesn't exist.</p></div>
+</section>
+
+<!-- STEP 3 -->
+<section class="step" id="s3">
+  <h2><span class="num">3</span>Build the Player scene</h2>
+  <p>This is the tree you'll build. Each node has one job:</p>
+<pre>Player (CharacterBody3D)          <span class="c">← moves and collides</span>
+├── CollisionShape3D              <span class="c">← capsule: the body you bump into things with</span>
+├── Model (Node3D)                <span class="c">← turns to face the way you walk</span>
+│   └── character1                <span class="c">← your .glb (scaled and centered)</span>
+└── CameraPivot (Node3D)          <span class="c">← turns left and right with the mouse</span>
+    └── SpringArm3D               <span class="c">← tilts up and down, keeps the camera out of walls</span>
+        └── Camera3D              <span class="c">← what the player sees</span></pre>
+  <figure>
+    <img src="images/p2_player_scene.png" alt="Godot editor showing the finished Player scene tree and the knight inside its capsule in the 3D view" loading="lazy">
+    <figcaption>The finished Player scene. The knight stands inside the capsule, and the camera sits behind it.</figcaption>
+  </figure>
+  <div class="callout tip"><span class="label">Why are the Model and the camera separate?</span><p>When you walk left, the <b>character</b> should turn left but the <b>camera</b> should stay put. When you move the mouse, the <b>camera</b> should turn but the character shouldn't. Because the two are separate nodes, each can turn on its own.</p></div>
+
+  <h3>3a. The body</h3>
+  <ol>
+    <li>Choose <span class="ui">Scene → New Scene → Other Node</span> and pick <b>CharacterBody3D</b>. Rename it <code>Player</code>.</li>
+    <li>Add a child <b>CollisionShape3D</b>. Set <span class="ui">Shape → New CapsuleShape3D</span>, then click the capsule and set <b>Radius</b> <code>0.4</code> and <b>Height</b> <code>1.8</code>.</li>
+    <li>Set the CollisionShape3D's <span class="ui">Transform → Position Y</span> to <code>0.9</code> (half the height), so the bottom of the capsule is at the feet.</li>
+  </ol>
+  <figure>
+    <img src="images/p2_capsule.png" alt="CollisionShape3D selected with a CapsuleShape3D of radius 0.4 and height 1.8 in the Inspector" loading="lazy">
+    <figcaption>The capsule: 0.4 m radius, 1.8 m tall, moved up 0.9 m.</figcaption>
+  </figure>
+
+  <h3>3b. The model</h3>
+  <ol>
+    <li>Add a child <b>Node3D</b> to Player and name it <code>Model</code>.</li>
+    <li>Drag <code>character1.glb</code> from FileSystem onto <code>Model</code>.</li>
+    <li>Select the <b>character1</b> node. Set <b>Scale</b> to <code>0.025</code> and <b>Position</b> to <code>(-0.12, 0, 0.42)</code>, so the knight stands inside the capsule.</li>
+    <li>Select <b>Model</b> and set <span class="ui">Rotation Y</span> to <code>180</code>.</li>
+  </ol>
+  <figure>
+    <img src="images/p2_model_transform.png" alt="The character1 node selected with Position -0.12, 0, 0.42 and Scale 0.025 in the Inspector" loading="lazy">
+    <figcaption>Size and center the .glb on its own node (the Lesson 1 rule: scale the child).</figcaption>
+  </figure>
+  <figure>
+    <img src="images/p2_model_rotation.png" alt="The Model node selected with Rotation Y set to 180 degrees, so the knight faces away from the blue Z arrow" loading="lazy">
+    <figcaption>Turn <b>Model</b> 180° on Y.</figcaption>
+  </figure>
+  <div class="callout warn"><span class="label">Why turn it 180°?</span><p>A .glb character faces <b>+Z</b>, but a Godot camera looks toward <b>−Z</b>. Without the turn, the game starts with the character facing you like in a selfie. Turning <b>Model</b> (not the .glb inside it) keeps the size and position you just set.</p></div>
+
+  <h3>3c. The camera</h3>
+  <ol>
+    <li>Add a child <b>Node3D</b> to Player, name it <code>CameraPivot</code>, and set <span class="ui">Position Y</span> to <code>1.5</code> (about head height).</li>
+    <li>Add a <b>SpringArm3D</b> as a child of CameraPivot. Set <b>Spring Length</b> to <code>4</code>, <b>Margin</b> to <code>0.2</code>, and <span class="ui">Rotation X</span> to <code>-17</code> so the camera looks down a little.</li>
+    <li>Add a <b>Camera3D</b> as a child of SpringArm3D. Leave its settings as they are.</li>
+    <li>Save as <code>character/player.tscn</code>.</li>
+  </ol>
+  <figure>
+    <img src="images/p2_spring_arm.png" alt="SpringArm3D selected with Spring Length 4 and Margin 0.2 in the Inspector" loading="lazy">
+    <figcaption>SpringArm3D holds the camera 4 m behind the head.</figcaption>
+  </figure>
+  <div class="callout tip"><span class="label">What does a SpringArm3D do?</span><p>It's like a selfie stick. It holds the camera 4 m away, but if a wall or pillar gets between the camera and the character, it pulls the camera in closer. That way the camera never ends up inside a wall.</p></div>
+</section>
+
+<!-- STEP 4 -->
+<section class="step" id="s4">
+  <h2><span class="num">4</span>The player script</h2>
+  <ol>
+    <li>Right-click <b>Player</b> and choose <span class="ui">Attach Script…</span></li>
+    <li>Set the path to <code>res://scripts/player.gd</code>. For <b>Template</b>, choose <span class="ui">Object: Empty</span>. (The "Basic Movement" template is fine too, but you'll replace all of its code.)</li>
+    <li>Click <span class="ui">Create</span> and type in the code below.</li>
+  </ol>
+  <figure>
+    <img src="images/p2_script_editor.png" alt="Godot script editor showing player.gd" loading="lazy">
+    <figcaption>The script editor with <code>player.gd</code> open.</figcaption>
+  </figure>
+<pre>extends CharacterBody3D
+
+<span class="c">## Walking speed in meters per second.</span>
+@export var speed := 6.0
+<span class="c">## Upward speed when jumping. Higher number = higher jump.</span>
+@export var jump_velocity := 5.5
+<span class="c">## How fast the mouse turns the camera.</span>
+@export var mouse_sensitivity := 0.003
+<span class="c">## How fast the character turns to face the way it walks.</span>
+@export var turn_speed := 10.0
+
+var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+
+@onready var model: Node3D = $Model
+@onready var camera_pivot: Node3D = $CameraPivot
+@onready var spring_arm: SpringArm3D = $CameraPivot/SpringArm3D
+
+
+func _ready() -&gt; void:
+<span class="c">    # Hide the mouse and lock it to the window so it can turn the camera.</span>
+    Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+<span class="c">    # Stop the camera arm from bumping into our own body.</span>
+    spring_arm.add_excluded_object(get_rid())
+
+
+func _unhandled_input(event: InputEvent) -&gt; void:
+<span class="c">    # Mouse left/right turns the pivot, mouse up/down tilts the arm.</span>
+    if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+        camera_pivot.rotate_y(-event.relative.x * mouse_sensitivity)
+        spring_arm.rotate_x(-event.relative.y * mouse_sensitivity)
+        spring_arm.rotation.x = clamp(spring_arm.rotation.x, deg_to_rad(-70), deg_to_rad(20))
+
+<span class="c">    # Esc shows the mouse again; clicking in the game hides it again.</span>
+    if event.is_action_pressed("ui_cancel"):
+        Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+    elif event is InputEventMouseButton and event.pressed:
+        Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+func _physics_process(delta: float) -&gt; void:
+<span class="c">    # Gravity pulls us down while we are in the air.</span>
+    if not is_on_floor():
+        velocity.y -= gravity * delta
+
+<span class="c">    # Jump only when standing on something.</span>
+    if Input.is_action_just_pressed("jump") and is_on_floor():
+        velocity.y = jump_velocity
+
+<span class="c">    # Turn WASD into a direction based on where the camera is looking.</span>
+    var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+    var direction := camera_pivot.global_basis * Vector3(input_dir.x, 0, input_dir.y)
+    direction.y = 0
+    direction = direction.normalized()
+
+    if direction:
+        velocity.x = direction.x * speed
+        velocity.z = direction.z * speed
+<span class="c">        # Smoothly turn the model to face the way we are walking.</span>
+        var target_angle := atan2(direction.x, direction.z)
+        model.global_rotation.y = lerp_angle(model.global_rotation.y, target_angle, turn_speed * delta)
+    else:
+        velocity.x = move_toward(velocity.x, 0, speed)
+        velocity.z = move_toward(velocity.z, 0, speed)
+
+    move_and_slide()</pre>
+
+  <h3>How it works</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Part</th><th>What it does</th></tr>
+    <tr><td><code>@export var …</code></td><td>Settings that show up in the Inspector, so you can change speed and jump height without editing code (see the picture below).</td></tr>
+    <tr><td><code>@onready var …</code></td><td>Finds the nodes the script needs (<code>$Model</code>, <code>$CameraPivot</code>…) once the scene is ready.</td></tr>
+    <tr><td><code>_ready()</code></td><td>Runs once at the start. Hides the mouse and locks it to the game window, and tells the spring arm to ignore the player's own body.</td></tr>
+    <tr><td><code>_unhandled_input()</code></td><td>Runs on every input event. Moving the mouse sideways turns <b>CameraPivot</b>, and up and down tilts <b>SpringArm3D</b>. <code>clamp</code> stops the camera from flipping over. <kbd>Esc</kbd> shows the mouse.</td></tr>
+    <tr><td><code>_physics_process()</code></td><td>Runs 60 times a second. It adds gravity, starts a jump, works out which way is forward <b>from the camera's point of view</b>, turns the Model that way, and moves with <code>move_and_slide()</code>.</td></tr>
+  </table></div>
+  <figure>
+    <img src="images/p2_script_attached.png" alt="Player selected with the exported Speed, Jump Velocity, Mouse Sensitivity and Turn Speed shown in the Inspector" loading="lazy">
+    <figcaption>Every <code>@export</code> variable shows up in the Inspector when you select Player.</figcaption>
+  </figure>
+  <div class="callout tip"><span class="label">Walking relative to the camera</span><p><code>Input.get_vector()</code> turns WASD into a 2D direction. Multiplying it by <code>camera_pivot.global_basis</code> rotates it to match where the camera is looking. That's why <kbd>W</kbd> always walks "into the screen", whichever way you've turned the mouse.</p></div>
+</section>
+
+<!-- STEP 5 -->
+<section class="step" id="s5">
+  <h2><span class="num">5</span>Put it together in a Game scene</h2>
+  <ol>
+    <li>Create a new scene with a <b>Node3D</b> root named <code>Game</code>.</li>
+    <li>Drag <code>map/map1.tscn</code> onto <code>Game</code>, then drag <code>character/player.tscn</code> onto <code>Game</code>.</li>
+    <li>Select <b>Player</b> and set <span class="ui">Position</span> to <code>(-10, 0, -22)</code> and <span class="ui">Rotation Y</span> to <code>180</code>, so the player starts at the edge of the arena facing the middle.</li>
+    <li>Save as <code>game.tscn</code> (in <code>res://</code>).</li>
+  </ol>
+<pre>Game (Node3D)
+├── Map1      <span class="c">← the arena from Lesson 1</span>
+└── Player    <span class="c">← your hero</span></pre>
+  <figure>
+    <img src="images/p2_game_scene.png" alt="Game scene with Map1 and Player; Player selected with Position -10, 0, -22 and Rotation Y 180" loading="lazy">
+    <figcaption>The Game scene: the map plus one player, placed at the edge of the arena.</figcaption>
+  </figure>
+  <div class="callout note"><span class="label">Why a separate Game scene?</span><p>The map stays just a map, and the player stays just a player. For multiplayer, the Game scene will add <b>one Player per person</b>, and neither the map nor the player scene needs to change.</p></div>
+</section>
+
+<!-- STEP 6 -->
+<section class="step" id="s6">
+  <h2><span class="num">6</span>Set the main scene and play</h2>
+  <p>The <b>main scene</b> is what starts when you press <kbd>F5</kbd> (the ▶ button). In Lesson 1 it was the map. Now it should be the Game.</p>
+  <ol>
+    <li>Open <span class="ui">Project → Project Settings… → General</span>.</li>
+    <li>Type <code>main scene</code> in the filter box and click <span class="ui">Application → Run</span>.</li>
+    <li>Set <b>Main Scene</b> to <code>res://game.tscn</code> using the folder button.</li>
+  </ol>
+  <figure>
+    <img src="images/p2_main_scene.png" alt="Project Settings General tab filtered by main scene, showing Application Run Main Scene set to res://game.tscn" loading="lazy">
+    <figcaption>Main Scene set to <code>res://game.tscn</code>. Shortcut: right-click <code>game.tscn</code> in FileSystem and choose <b>Set as Main Scene</b>.</figcaption>
+  </figure>
+  <p>Press <kbd>F5</kbd>. Walk around, climb a ramp onto a corner platform, and jump onto the green step.</p>
+  <figure>
+    <img src="images/p2_ingame_platform.png" alt="In-game view of the knight standing on an orange corner platform next to the green step and the higher platform" loading="lazy">
+    <figcaption>On a corner platform. The jump (about 1.6 m) is high enough for the 1 m steps up to the lookout.</figcaption>
+  </figure>
+</section>
+
+<!-- STEP 7 -->
+<section class="step" id="s7">
+  <h2><span class="num">7</span>Tuning</h2>
+  <p>Select <b>Player</b> in <code>player.tscn</code> and change these in the Inspector. Press <kbd>F5</kbd> to feel the difference.</p>
+  <div class="table-wrap"><table>
+    <tr><th>Setting</th><th>Default</th><th>Effect</th></tr>
+    <tr><td>Speed</td><td>6.0</td><td>Walking speed in meters per second.</td></tr>
+    <tr><td>Jump Velocity</td><td>5.5</td><td>Jump height. 5.5 gives about 1.6 m, and 4.5 about 1 m (too low for the steps).</td></tr>
+    <tr><td>Mouse Sensitivity</td><td>0.003</td><td>Camera turn speed. Try 0.002 for slower or 0.005 for faster.</td></tr>
+    <tr><td>Turn Speed</td><td>10.0</td><td>How quickly the knight turns to face the way it walks.</td></tr>
+    <tr><td>SpringArm3D → Spring Length</td><td>4</td><td>How far the camera is behind the character.</td></tr>
+  </table></div>
+</section>
+
+<!-- STEP 8 -->
+<section class="step" id="s8">
+  <h2><span class="num">8</span>Troubleshooting</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Problem</th><th>Cause and fix</th></tr>
+    <tr><td>Error: <i>The InputMap action "move_forward" doesn't exist</i></td><td>An action is missing or spelled differently. Check the Input Map (Step 2).</td></tr>
+    <tr><td>The character faces the camera at the start</td><td>Set <b>Model</b> <span class="ui">Rotation Y</span> to 180 (Step 3b).</td></tr>
+    <tr><td>The character floats or sinks into the floor</td><td>Change the Y position of the .glb node, and make sure the capsule's Position Y is half its height.</td></tr>
+    <tr><td>The character falls through the map</td><td>A map block has no collision (see Lesson 1), or the player starts inside a block.</td></tr>
+    <tr><td>The camera jumps around or is stuck inside the character</td><td>Make sure <code>_ready()</code> has <code>spring_arm.add_excluded_object(get_rid())</code>.</td></tr>
+    <tr><td>Moving the mouse up looks down</td><td>That's inverted Y. Remove the <code>-</code> in front of <code>event.relative.y</code> if you prefer it.</td></tr>
+    <tr><td>F5 starts the map instead of the game</td><td>Change the main scene (Step 6).</td></tr>
+    <tr><td>The mouse is stuck in the game window</td><td>Press <kbd>Esc</kbd>.</td></tr>
+  </table></div>
+</section>
+
+<!-- STEP 9 -->
+<section class="step" id="s9">
+  <h2><span class="num">9</span>Checklist and challenges</h2>
+  <h3>Before moving on, check that:</h3>
+  <ul class="check">
+    <li>The five actions are in the Input Map</li>
+    <li>The character is about 1.8 m tall and stands inside its capsule</li>
+    <li>At the start you see the character's back</li>
+    <li><kbd>W</kbd> walks the way the camera looks, and the character turns to face that way</li>
+    <li>You can climb the ramp and jump up the steps to the lookout</li>
+    <li>The camera doesn't go through walls</li>
+  </ul>
+  <h3>Challenges</h3>
+  <ol>
+    <li><b>Sprint:</b> add a <code>sprint</code> action (<kbd>Shift</kbd>) and double the speed while it's held.</li>
+    <li><b>Zoom:</b> use the mouse wheel to change <code>spring_arm.spring_length</code> between 2 and 8.</li>
+    <li><b>Double jump:</b> allow one extra jump in the air, and reset it when you land.</li>
+    <li><b>Your own hero:</b> make or download another .glb character and swap it in. Only Step 3b changes.</li>
+  </ol>
+</section>
+
+<footer><a href="learning.html">← Lesson 1: The Map</a> · 3D Boss Fight Multiplayer · Lesson 2: The Player · Godot 4.4</footer>
+</main>
+</div>
+
+</body>
+</html>
