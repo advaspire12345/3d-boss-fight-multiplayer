@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1 · Building the Boss Arena</title>
+<style>
+  :root {
+    --bg: #f6f5f1;
+    --paper: #ffffff;
+    --ink: #1d1f24;
+    --muted: #5d6270;
+    --line: #e3e1da;
+    --accent: #4f63e0;
+    --accent-soft: #eceffd;
+    --tip: #1f8a55;
+    --tip-soft: #e7f5ee;
+    --warn: #b5530f;
+    --warn-soft: #fcf0e4;
+    --code-bg: #f1f0ec;
+    --c-floor: #6c80ff;
+    --c-stage: #d94040;
+    --c-plat: #ff8c33;
+    --c-plat2: #ffb366;
+    --c-step: #59cc66;
+    --c-ramp: #ffd933;
+    --c-pillar: #4d4d59;
+    --c-wall: #9999a6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #16171b; --paper: #1e2026; --ink: #e8e9ee; --muted: #a0a5b3; --line: #2f323b;
+      --accent: #8e9cff; --accent-soft: #252a45; --tip: #5fd198; --tip-soft: #1b2e25;
+      --warn: #f0a060; --warn-soft: #33261a; --code-bg: #262830;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #16171b; --paper: #1e2026; --ink: #e8e9ee; --muted: #a0a5b3; --line: #2f323b;
+    --accent: #8e9cff; --accent-soft: #252a45; --tip: #5fd198; --tip-soft: #1b2e25;
+    --warn: #f0a060; --warn-soft: #33261a; --code-bg: #262830;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-inline: 16px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 40px; padding-block: 40px 80px; }
+  @media (max-width: 860px) { .wrap { grid-template-columns: 1fr; gap: 0; padding-block: 24px 60px; } nav.toc { display: none; } }
+
+  nav.toc { position: sticky; top: 24px; align-self: start; font-size: 14px; }
+  nav.toc b { display: block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  nav.toc a { display: block; color: var(--muted); text-decoration: none; padding: 4px 0 4px 12px; border-left: 2px solid var(--line); }
+  nav.toc a:hover { color: var(--accent); border-left-color: var(--accent); }
+
+  header.hero { margin-bottom: 40px; }
+  .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(30px, 5vw, 42px); line-height: 1.15; margin: 8px 0 12px; }
+  .lede { font-size: 18px; color: var(--muted); margin: 0 0 20px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font-size: 13px; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; }
+
+  figure { margin: 24px 0; }
+  figure img { display: block; width: 100%; border-radius: 12px; border: 1px solid var(--line); }
+  figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; }
+
+  section.step { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 28px clamp(18px, 4vw, 36px); margin-bottom: 24px; }
+  section.step > h2 { display: flex; align-items: center; gap: 14px; margin: 0 0 16px; font-size: 24px; line-height: 1.25; }
+  .num { flex: none; width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: var(--accent); color: #fff; font-size: 18px; }
+  h3 { font-size: 18px; margin: 28px 0 8px; }
+  p { margin: 0 0 14px; }
+  ol, ul { padding-left: 22px; margin: 0 0 14px; }
+  li { margin-bottom: 6px; }
+  li::marker { color: var(--muted); }
+
+  code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .9em; background: var(--code-bg); padding: 1px 6px; border-radius: 5px; }
+  pre { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 14px; line-height: 1.55; background: var(--code-bg); padding: 14px 18px; border-radius: 10px; overflow-x: auto; margin: 0 0 16px; }
+  pre .c { color: var(--muted); }
+  kbd { font-family: ui-monospace, Consolas, monospace; font-size: .85em; background: var(--paper); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 0 6px; }
+  .ui { font-weight: 600; }
+
+  .callout { border-radius: 10px; padding: 14px 18px; margin: 18px 0; border-left: 4px solid; }
+  .callout p:last-child, .callout ul:last-child, .callout ol:last-child { margin-bottom: 0; }
+  .callout .label { display: block; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
+  .tip { background: var(--tip-soft); border-color: var(--tip); }
+  .tip .label { color: var(--tip); }
+  .warn { background: var(--warn-soft); border-color: var(--warn); }
+  .warn .label { color: var(--warn); }
+  .note { background: var(--accent-soft); border-color: var(--accent); }
+  .note .label { color: var(--accent); }
+
+  .table-wrap { overflow-x: auto; margin: 0 0 16px; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; border: 1px solid rgba(0,0,0,.15); }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .two { grid-template-columns: 1fr; } }
+  .card { border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .card h4 { margin: 0 0 8px; font-size: 16px; }
+  .card p:last-child, .card ol:last-child { margin-bottom: 0; }
+
+  .diagram { background: var(--code-bg); border-radius: 12px; padding: 16px; overflow-x: auto; }
+  .diagram svg { display: block; width: 100%; max-width: 520px; min-width: 300px; margin: 0 auto; }
+  .diagram svg text { fill: var(--muted); font-family: system-ui, sans-serif; }
+
+  .check { list-style: none; padding-left: 0; }
+  .check li { padding-left: 30px; position: relative; }
+  .check li::before { content: ""; position: absolute; left: 2px; top: 5px; width: 16px; height: 16px; border: 2px solid var(--accent); border-radius: 4px; }
+
+  footer { color: var(--muted); font-size: 14px; text-align: center; margin-top: 32px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="toc" aria-label="Contents">
+  <b>Contents</b>
+  <a href="#s1">1. Folders</a>
+  <a href="#s2">2. The map scene</a>
+  <a href="#s3">3. Make a block</a>
+  <a href="#s4">4. The block set</a>
+  <a href="#s5">5. Your own GLB</a>
+  <a href="#s6">6. Build the arena</a>
+  <a href="#s7">7. Multiplayer note</a>
+  <a href="#s8">8. Troubleshooting</a>
+  <a href="#s9">9. Challenges</a>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="eyebrow">3D Boss Fight Multiplayer · Lesson 1</div>
+  <h1>Building the Boss Arena</h1>
+  <p class="lede">Build a 3D arena in Godot from reusable blocks, including 3D models you made yourself (.glb). This lesson covers the map only. Players, the boss and multiplayer come in later lessons.</p>
+  <div class="meta">
+    <span class="chip">Godot 4.4</span>
+    <span class="chip">Beginner</span>
+    <span class="chip">~60–90 min</span>
+  </div>
+  <figure>
+    <img src="images/map_preview.png" alt="Finished arena: blue floor, gray walls, red boss stage in the center, pillars, and orange platforms with yellow ramps in each corner">
+    <figcaption>What you'll build: a walled arena with a boss stage, cover pillars and climbable corner platforms.</figcaption>
+  </figure>
+  <div class="callout note">
+    <span class="label">What you'll learn</span>
+    <ul>
+      <li>What <b>StaticBody3D</b>, <b>MeshInstance3D</b> and <b>CollisionShape3D</b> do, and why a block needs all three</li>
+      <li>How to save a block as its own scene and reuse it many times</li>
+      <li>How to import a .glb model and give it collision</li>
+      <li>How to place blocks precisely using snapping</li>
+    </ul>
+  </div>
+</header>
+
+<!-- STEP 1 -->
+<section class="step" id="s1">
+  <h2><span class="num">1</span>Set up the folders</h2>
+  <p>In the <span class="ui">FileSystem</span> panel (bottom left), right-click <code>res://</code> and choose <span class="ui">Create New → Folder</span>. Make this structure:</p>
+<pre>map/
+  blocks/     <span class="c">← one .tscn file per block type</span>
+  models/     <span class="c">← your .glb files go here</span>
+  map1.tscn   <span class="c">← the arena itself</span></pre>
+  <div class="callout tip"><span class="label">Why</span><p>Keeping the source models (<code>models/</code>) apart from the blocks you place (<code>blocks/</code>) keeps the project tidy as it grows.</p></div>
+</section>
+
+<!-- STEP 2 -->
+<section class="step" id="s2">
+  <h2><span class="num">2</span>Create the map scene</h2>
+  <ol>
+    <li>Choose <span class="ui">Scene → New Scene</span>, then <span class="ui">Other Node</span>, and pick <b>Node3D</b>. Rename it <code>Map1</code>.</li>
+    <li>Add light and a sky. In the 3D viewport toolbar, click the <span class="ui">⋮</span> menu next to the sun and globe icons. Choose <span class="ui">Add Sun to Scene</span> and <span class="ui">Add Environment to Scene</span>.</li>
+    <li>Add a child <b>Node3D</b> named <code>Blocks</code>. Every block will go inside it.</li>
+    <li>Save the scene as <code>map/map1.tscn</code>.</li>
+  </ol>
+  <figure>
+    <img src="images/step2_light_sky.png" alt="Godot editor with the Sun and Environment settings popup open, showing the Add Sun to Scene and Add Environment to Scene buttons" loading="lazy">
+    <figcaption>Click the <b>⋮</b> button (top red box), then <b>Add Sun to Scene</b> and <b>Add Environment to Scene</b>.</figcaption>
+  </figure>
+<pre>Map1 (Node3D)
+├── WorldEnvironment
+├── DirectionalLight3D
+└── Blocks (Node3D)</pre>
+</section>
+
+<!-- STEP 3 -->
+<section class="step" id="s3">
+  <h2><span class="num">3</span>Make your first block</h2>
+  <p>A block needs three nodes. Each one has a different job:</p>
+  <div class="table-wrap"><table>
+    <tr><th>Node</th><th>Job</th></tr>
+    <tr><td><b>StaticBody3D</b></td><td>The root node. It tells the physics engine that this object is solid and never moves.</td></tr>
+    <tr><td><b>MeshInstance3D</b></td><td>What you <i>see</i>: the shape and color.</td></tr>
+    <tr><td><b>CollisionShape3D</b></td><td>What you <i>touch</i>: the invisible shape that players stand on.</td></tr>
+  </table></div>
+
+  <h3>3a. The visible part</h3>
+  <ol>
+    <li>Choose <span class="ui">Scene → New Scene → Other Node</span> and pick <b>StaticBody3D</b>. Rename it <code>BlockStep</code>.</li>
+    <li>Add a child <b>MeshInstance3D</b>. In the Inspector, set <span class="ui">Mesh → New BoxMesh</span>. Click the BoxMesh and set <b>Size</b> to <code>(2, 1, 2)</code>.</li>
+    <li>In the BoxMesh's <span class="ui">Material</span> slot, choose <span class="ui">New StandardMaterial3D</span>, then pick an <b>Albedo → Color</b>.</li>
+  </ol>
+
+  <figure>
+    <img src="images/step3_block_inspector.png" alt="Godot editor with MeshInstance3D selected and the BoxMesh opened in the Inspector, showing Size 2, 1, 2 and the Material slot" loading="lazy">
+    <figcaption>Select the <b>MeshInstance3D</b>, then click the box picture next to <b>Mesh</b> to open the BoxMesh settings. <b>Size</b> and <b>Material</b> are inside it.</figcaption>
+  </figure>
+
+  <h3>3b. The collision: pick one of two ways</h3>
+  <div class="two">
+    <div class="card">
+      <h4>Way A: let Godot make it</h4>
+      <ol>
+        <li>Make sure the <span class="ui">3D</span> tab is open (top center of the editor).</li>
+        <li>Select the <b>MeshInstance3D</b>. A <span class="ui">Mesh</span> menu appears in the viewport toolbar.</li>
+        <li>Choose <span class="ui">Mesh → Create Collision Shape…</span></li>
+        <li>For Placement, choose <b>Sibling</b>. For Type, choose <b>Single Convex</b>.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h4>Way B: add it by hand</h4>
+      <ol>
+        <li>Select the root <b>StaticBody3D</b>.</li>
+        <li>Add a child <b>CollisionShape3D</b>.</li>
+        <li>Set <span class="ui">Shape → New BoxShape3D</span>.</li>
+        <li>Set its <b>Size</b> to the <b>same size as the mesh</b>: <code>(2, 1, 2)</code>.</li>
+      </ol>
+    </div>
+  </div>
+
+  <figure>
+    <img src="images/step3_mesh_menu.png" alt="The Mesh menu open in the 3D viewport toolbar, with Create Collision Shape at the top" loading="lazy">
+    <figcaption>Way A: with the MeshInstance3D selected, the <b>Mesh</b> menu appears in the toolbar. Choose <b>Create Collision Shape…</b></figcaption>
+  </figure>
+  <figure>
+    <img src="images/step3_collision_dialog.png" alt="Create Collision Shape dialog with placement set to Sibling and type set to Single Convex" loading="lazy">
+    <figcaption>Set the placement to <b>Sibling</b> and the type to <b>Single Convex</b>, then click <b>Create</b>.</figcaption>
+  </figure>
+  <p style="margin-top:16px">Which <span class="ui">Create Collision Shape</span> type should you choose?</p>
+  <div class="table-wrap"><table>
+    <tr><th>Type</th><th>Use it for</th></tr>
+    <tr><td><b>Single Convex</b></td><td>Boxes, ramps and other simple shapes. It fits them exactly and is fast. <b>Use this for most blocks.</b></td></tr>
+    <tr><td><b>Trimesh</b></td><td>Complex models (rocks, statues, arches). It follows every triangle exactly. <b>Only for things that never move.</b></td></tr>
+    <tr><td>Simplified / Multiple Convex</td><td>Complex objects that <i>move</i>. You don't need these for a map.</td></tr>
+  </table></div>
+  <p>With Way B, use the collision shape that matches the mesh:</p>
+  <div class="table-wrap"><table>
+    <tr><th>Mesh</th><th>Collision shape</th></tr>
+    <tr><td>BoxMesh</td><td>BoxShape3D (same size)</td></tr>
+    <tr><td>CylinderMesh</td><td>CylinderShape3D (same radius and height)</td></tr>
+    <tr><td>SphereMesh</td><td>SphereShape3D (same radius)</td></tr>
+    <tr><td>PrismMesh (ramp)</td><td>Use Way A: Single Convex</td></tr>
+  </table></div>
+
+  <h3>3c. Put the origin at the bottom</h3>
+  <p>By default a BoxMesh is centered on its node, so half of it would sink into the floor. Instead, move <b>both</b> the MeshInstance3D and the CollisionShape3D up by <b>half the block's height</b>. For a block 1 m tall, set <span class="ui">Transform → Position Y</span> to <code>0.5</code>.</p>
+<pre>BlockStep (StaticBody3D)        <span class="c">← origin at the bottom-center</span>
+├── MeshInstance3D      y = 0.5  <span class="c">← BoxMesh 2×1×2</span>
+└── CollisionShape3D    y = 0.5  <span class="c">← BoxShape3D 2×1×2</span></pre>
+  <div class="callout tip"><span class="label">Why this helps</span><p>With the origin at the bottom, a block's Y position is the height of whatever it stands on. Put it at <code>Y = 0</code> to stand it on the floor, or at <code>Y = 2</code> to stand it on a 2 m platform. No extra math needed.</p></div>
+
+  <p>Save the scene as <code>map/blocks/block_step.tscn</code>.</p>
+
+  <div class="callout warn"><span class="label">Common mistake</span><p><b>The mesh and the collision don't update each other.</b> If you change the BoxMesh size later, change the collision shape size too. For example, if you resize a floor mesh to 100 × 100 but its collision stays 10 × 10, players fall through everywhere except the middle. Turn on <span class="ui">Debug → Visible Collision Shapes</span> to catch this.</p></div>
+</section>
+
+<!-- STEP 4 -->
+<section class="step" id="s4">
+  <h2><span class="num">4</span>Make the full block set</h2>
+  <p>Repeat Step 3 for each block below. <b>Tip:</b> right-click a finished block in FileSystem, choose <span class="ui">Duplicate…</span>, then change the size and color. That's much faster than starting from scratch.</p>
+  <div class="table-wrap"><table>
+    <tr><th>File</th><th>Mesh (size in meters)</th><th>Color</th><th>Use</th></tr>
+    <tr><td><code>block_floor</code></td><td>Box 100 × 1 × 100</td><td><span class="sw" style="background:var(--c-floor)"></span>blue</td><td>ground</td></tr>
+    <tr><td><code>block_boss_stage</code></td><td>Cylinder, radius 6, height 0.5</td><td><span class="sw" style="background:var(--c-stage)"></span>red</td><td>boss area in the center</td></tr>
+    <tr><td><code>block_platform_large</code></td><td>Box 8 × 2 × 8</td><td><span class="sw" style="background:var(--c-plat)"></span>orange</td><td>raised area</td></tr>
+    <tr><td><code>block_platform_small</code></td><td>Box 4 × 2 × 4</td><td><span class="sw" style="background:var(--c-plat2)"></span>light orange</td><td>high lookout spot</td></tr>
+    <tr><td><code>block_step</code></td><td>Box 2 × 1 × 2</td><td><span class="sw" style="background:var(--c-step)"></span>green</td><td>stair step</td></tr>
+    <tr><td><code>block_ramp</code></td><td>Prism 4 × 2 × 4, <b>Left To Right = 1</b></td><td><span class="sw" style="background:var(--c-ramp)"></span>yellow</td><td>walk up 2 m</td></tr>
+    <tr><td><code>block_pillar</code></td><td>Box 2 × 6 × 2</td><td><span class="sw" style="background:var(--c-pillar)"></span>dark gray</td><td>cover, wall corners</td></tr>
+    <tr><td><code>block_wall</code></td><td>Box 10 × 3 × 1</td><td><span class="sw" style="background:var(--c-wall)"></span>gray</td><td>arena border</td></tr>
+  </table></div>
+  <div class="callout tip"><span class="label">Keep sizes simple</span><p>Use whole meters (1, 2, 4, 8, 10). Blocks then snap together without gaps.</p></div>
+  <div class="callout note"><span class="label">The ramp</span><p>A PrismMesh is a triangle shape. With <b>Left To Right = 1</b>, the high end is on the +X side, which makes a ramp. Give it collision with <span class="ui">Mesh → Create Collision Shape → Single Convex</span>.</p></div>
+</section>
+
+<!-- STEP 5 -->
+<section class="step" id="s5">
+  <h2><span class="num">5</span>Use your own GLB model as a block</h2>
+  <p>You can make models in Blender, Tinkercad or other tools and export them as <code>.glb</code>.</p>
+
+  <h3>5a. Import it with collision</h3>
+  <ol>
+    <li>Drag the <code>.glb</code> file into <code>map/models/</code>. Godot imports it automatically.</li>
+    <li><b>Double-click</b> the .glb to open <span class="ui">Advanced Import Settings</span>.</li>
+    <li>In the tree on the left, select the <b>mesh</b> node (the one with the mesh icon).</li>
+    <li>On the right, under <span class="ui">Physics</span>, turn on <b>Physics</b>. Set <b>Body Type</b> to <code>Static</code> and <b>Shape Type</b> to <code>Trimesh</code>.</li>
+    <li>Click <span class="ui">Reimport</span>.</li>
+  </ol>
+
+  <figure>
+    <img src="images/step5_import_glb.png" alt="Advanced Import Settings for kirbbb.glb with the mesh node selected and Physics on, Body Type Static, Shape Type Trimesh" loading="lazy">
+    <figcaption>Advanced Import Settings: select the <b>mesh node</b> (left), turn on <b>Physics</b> with <b>Static</b> and <b>Trimesh</b> (right), then click <b>Reimport</b>.</figcaption>
+  </figure>
+
+  <h3>5b. Wrap it in a block scene</h3>
+  <ol>
+    <li>Choose <span class="ui">Scene → New Scene</span> with a <b>Node3D</b> root. Rename it, for example <code>BlockKirbbb</code>.</li>
+    <li>Drag the .glb from FileSystem onto the root node.</li>
+    <li>Fix the size on the <b>child</b> (the model node), <b>not</b> on the root. See the warning below.</li>
+    <li>Save as <code>map/blocks/block_kirbbb.tscn</code>.</li>
+  </ol>
+<pre>BlockKirbbb (Node3D)                   <span class="c">← leave at scale 1</span>
+└── Tinkercad GLTF Scene  scale 0.1    <span class="c">← scale the model HERE</span></pre>
+
+  <div class="callout warn"><span class="label">Important: scale the child, not the root</span>
+    <p>When you place a block in the map, the transform (position, rotation, scale) you give it <b>in the map replaces the transform on the block scene's root</b>. Any scale on the root is lost.</p>
+    <p>If you put the scale on a <b>child</b> node inside the block, it is kept wherever you place the block.</p>
+  </div>
+
+  <h3>Model checklist</h3>
+  <ul>
+    <li><b>Units:</b> 1 Godot unit = 1 meter. Blender uses meters too. <b>Tinkercad exports in millimeters</b>, so its models come in very large and need scaling down (try 0.1 or 0.01).</li>
+    <li><b>Origin:</b> put the model's origin at its bottom-center, so it sits on the floor when you snap it.</li>
+    <li><b>Blender:</b> apply the scale and rotation (<kbd>Ctrl</kbd>+<kbd>A</kbd> → All Transforms) before exporting.</li>
+    <li><b>Blender shortcut:</b> name an object <code>Rock-col</code> before exporting, and Godot creates Trimesh collision for it automatically.</li>
+  </ul>
+</section>
+
+<!-- STEP 6 -->
+<section class="step" id="s6">
+  <h2><span class="num">6</span>Build the arena</h2>
+
+  <h3>6a. Turn on snapping</h3>
+  <ol>
+    <li>Open <code>map1.tscn</code>.</li>
+    <li>Click <span class="ui">Use Snap</span> in the viewport toolbar (the magnet icon), or press <kbd>Y</kbd>.</li>
+    <li>Choose <span class="ui">Transform → Configure Snap…</span> and set <b>Translate Snap</b> to <code>1</code> and <b>Rotate Snap</b> to <code>15</code>.</li>
+  </ol>
+
+  <figure>
+    <img src="images/step6_snapping.png" alt="Godot editor showing the arena, with the Use Snap magnet button turned on and the Snap Settings dialog open" loading="lazy">
+    <figcaption>The <b>Use Snap</b> button turns blue when it's on. <b>Transform → Configure Snap…</b> opens the Snap Settings.</figcaption>
+  </figure>
+
+  <h3>6b. Place blocks</h3>
+  <ul>
+    <li><b>Drag</b> a block scene from <code>map/blocks/</code> into the viewport. Make sure it ends up under <code>Blocks</code> in the Scene tree.</li>
+    <li>Press <kbd>W</kbd> to move, <kbd>E</kbd> to rotate, <kbd>R</kbd> to scale, and <kbd>Q</kbd> to select.</li>
+    <li>Press <kbd>Ctrl</kbd>+<kbd>D</kbd> to duplicate the selected block.</li>
+    <li>For exact placement, type numbers into <span class="ui">Transform → Position</span> in the Inspector.</li>
+    <li>Place the floor at <code>Y = -1</code>, so its top surface is at <code>Y = 0</code>.</li>
+  </ul>
+
+  <h3>6c. The layout (top view)</h3>
+  <p>The arena is 60 × 60 m. It is split into <b>4 quadrants that are the same, just rotated</b> by 0°, 90°, 180° and 270°. Build one corner, then copy it three times.</p>
+  <div class="diagram">
+    <svg viewBox="-40 -40 80 80" role="img" aria-label="Top-down arena map: walls around a 60 by 60 meter square, a red circle in the center, four pillars around it, and in each corner an orange platform with a yellow ramp and green step">
+      <defs>
+        <g id="quad">
+          <rect x="30" y="-30" width="1" height="60" fill="var(--c-wall)"/>
+          <rect x="30" y="30" width="2" height="2" fill="var(--c-pillar)"/>
+          <rect x="18" y="18" width="8" height="8" fill="var(--c-plat)"/>
+          <rect x="22" y="22" width="4" height="4" fill="var(--c-plat2)"/>
+          <rect x="20" y="24" width="2" height="2" fill="var(--c-step)"/>
+          <polygon points="14,20 18,20 18,24 14,24" fill="var(--c-ramp)"/>
+          <rect x="11" y="-1" width="2" height="2" fill="var(--c-pillar)"/>
+        </g>
+      </defs>
+      <rect x="-40" y="-40" width="80" height="80" fill="var(--c-floor)" opacity=".25"/>
+      <use href="#quad"/>
+      <use href="#quad" transform="matrix(0,-1,1,0,0,0)"/>
+      <use href="#quad" transform="matrix(-1,0,0,-1,0,0)"/>
+      <use href="#quad" transform="matrix(0,1,-1,0,0,0)"/>
+      <circle cx="0" cy="0" r="6" fill="var(--c-stage)"/>
+      <line x1="0" y1="0" x2="8" y2="0" stroke="var(--ink)" stroke-width=".3" opacity=".5"/>
+      <line x1="0" y1="0" x2="0" y2="8" stroke="var(--ink)" stroke-width=".3" opacity=".5"/>
+      <text x="8.5" y="1" font-size="2.6">+X</text>
+      <text x="-1.6" y="11" font-size="2.6">+Z</text>
+      <text x="17" y="16.5" font-size="2.2">Quadrant1</text>
+      <text x="-38" y="-35.5" font-size="2.2">1 square = 1 m, arena = 60 × 60 m</text>
+    </svg>
+  </div>
+
+  <p style="margin-top:16px">The positions for <b>Quadrant1</b> (the others are the same group rotated):</p>
+  <div class="table-wrap"><table>
+    <tr><th>Block</th><th>Position (X, Y, Z)</th><th>Top height</th></tr>
+    <tr><td>PlatformLarge</td><td>(22, 0, 22)</td><td>2 m</td></tr>
+    <tr><td>Ramp</td><td>(16, 0, 22)</td><td>0 → 2 m</td></tr>
+    <tr><td>Step</td><td>(21, 2, 25)</td><td>3 m</td></tr>
+    <tr><td>PlatformSmall</td><td>(24, 2, 24)</td><td>4 m</td></tr>
+    <tr><td>Pillar</td><td>(12, 0, 0)</td><td>6 m</td></tr>
+    <tr><td>CornerPillar</td><td>(31, 0, 31)</td><td>6 m</td></tr>
+    <tr><td>Wall1 – Wall6</td><td>(30.5, 0, Z) with Z = −25, −15, −5, 5, 15, 25, rotated 90° on Y</td><td>3 m</td></tr>
+  </table></div>
+
+  <h3>6d. Copy the quadrant</h3>
+  <ol>
+    <li>Put all of Quadrant1's blocks inside a <b>Node3D</b> named <code>Quadrant1</code> (a child of <code>Blocks</code>).</li>
+    <li>Select <code>Quadrant1</code> and press <kbd>Ctrl</kbd>+<kbd>D</kbd> three times.</li>
+    <li>Set the copies' <span class="ui">Rotation Y</span> to <code>90</code>, <code>180</code> and <code>270</code>.</li>
+    <li>Add the <b>boss stage</b> at <code>(0, 0, 0)</code>. Put decorations such as your GLB model in a <code>Decoration</code> node.</li>
+  </ol>
+<pre>Blocks
+├── BlockFloor        <span class="c">(0, -1, 0)</span>
+├── BossStage         <span class="c">(0, 0, 0)</span>
+├── Quadrant1         <span class="c">rotation Y = 0</span>
+├── Quadrant2         <span class="c">rotation Y = 90</span>
+├── Quadrant3         <span class="c">rotation Y = 180</span>
+├── Quadrant4         <span class="c">rotation Y = 270</span>
+└── Decoration
+    └── BlockKirbbb</pre>
+
+  <div class="callout tip"><span class="label">Designing a boss arena</span>
+    <ul>
+      <li>Keep the center <b>open and flat</b>. That's where the boss fights.</li>
+      <li>Give players <b>high ground</b> (platforms) and <b>cover</b> (pillars).</li>
+      <li>Keep each climb <b>2 m or less</b> until you know how high the player can jump.</li>
+      <li>Build <b>walls</b> so nobody falls off the map.</li>
+      <li>Make it <b>balanced</b>. Every player spawn should be as good as the others, which is why the quadrants are the same.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- STEP 7 -->
+<section class="step" id="s7">
+  <h2><span class="num">7</span>A note about multiplayer</h2>
+  <p>In multiplayer, <b>every player loads the same <code>map1.tscn</code> on their own computer</b>. The map never moves, so there is nothing to send over the network. The blocks need no multiplayer code.</p>
+  <p>Only one rule to follow: <b>don't move or delete blocks while the game is running</b>. If one player's map changes, it no longer matches everyone else's. (Moving platforms would need syncing, which comes in a later lesson.)</p>
+</section>
+
+<!-- STEP 8 -->
+<section class="step" id="s8">
+  <h2><span class="num">8</span>Troubleshooting</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Problem</th><th>Cause and fix</th></tr>
+    <tr><td>I can't find the <span class="ui">Mesh</span> menu</td><td>It only appears in the <b>3D</b> tab with a <b>MeshInstance3D</b> selected. Make the editor window wider, or use Way B from Step 3b.</td></tr>
+    <tr><td>"Box" isn't a Create Collision Shape option</td><td>Choose <b>Single Convex</b>, which is exact for boxes, or add a BoxShape3D by hand (Way B).</td></tr>
+    <tr><td>Players fall through part of a block</td><td>The collision is smaller than the mesh. Make their sizes match.</td></tr>
+    <tr><td>A block is half inside the floor</td><td>The origin is in the middle. Move the mesh and collision up by half the block's height (Step 3c).</td></tr>
+    <tr><td>My GLB model is huge or tiny</td><td>The units are different (Tinkercad uses mm). Scale the <b>child</b> node inside the block scene.</td></tr>
+    <tr><td>The scale I set inside the block scene does nothing</td><td>You scaled the <b>root</b>. The transform in the map replaces it. Scale the child instead.</td></tr>
+    <tr><td>Players walk through my GLB model</td><td>Its collision is missing. Open Advanced Import Settings and turn on Physics with a Trimesh shape (Step 5a).</td></tr>
+    <tr><td>There's a "not found" error for a block</td><td>You moved or renamed a file outside Godot. Always move files <b>inside</b> the FileSystem panel.</td></tr>
+  </table></div>
+</section>
+
+<!-- STEP 9 -->
+<section class="step" id="s9">
+  <h2><span class="num">9</span>Checklist and challenges</h2>
+  <h3>Before moving on, check that:</h3>
+  <ul class="check">
+    <li>Every block is its own <code>.tscn</code> in <code>map/blocks/</code></li>
+    <li>Every block's origin is at its bottom-center</li>
+    <li>Every block has a collision shape the same size as its mesh</li>
+    <li>At least one of your own GLB models is in the map, with collision</li>
+    <li>The arena is closed in by walls</li>
+    <li>You can reach every platform with climbs of 2 m or less</li>
+  </ul>
+
+  <h3>Challenges</h3>
+  <ol>
+    <li><b>New block:</b> make a <code>block_bridge</code> (for example 10 × 0.5 × 2) and connect two corner platforms with it.</li>
+    <li><b>Your own model:</b> make a rock or crystal in Blender or Tinkercad, import it with Trimesh collision, and put four around the arena.</li>
+    <li><b>Map 2:</b> make <code>map2.tscn</code> with a different theme, such as a round arena, a lava pit with floating platforms, or a multi-level tower, using only your blocks.</li>
+    <li><b>Materials:</b> replace a flat color with a texture. Drag an image into the material's <span class="ui">Albedo → Texture</span> slot.</li>
+  </ol>
+</section>
+
+<footer>3D Boss Fight Multiplayer · Lesson 1: The Map · Godot 4.4</footer>
+</main>
+</div>
+</body>
+</html>

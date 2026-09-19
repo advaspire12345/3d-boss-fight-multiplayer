@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://ys3koy13q6pq"]
+
+[ext_resource type="PackedScene" uid="uid://dod3a33boskp4" path="res://map/models/kirbbb.glb" id="1_6qp66"]
+
+[node name="BlockKirbbb" type="Node3D"]
+
+[node name="Tinkercad GLTF Scene" parent="." instance=ExtResource("1_6qp66")]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)

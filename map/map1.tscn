@@ -1,0 +1,200 @@
+[gd_scene load_steps=13 format=3 uid="uid://bq6ph7r6katk7"]
+
+[ext_resource type="PackedScene" uid="uid://bohtjb53ipsd5" path="res://map/blocks/block_floor.tscn" id="1_floor"]
+[ext_resource type="PackedScene" uid="uid://ys3koy13q6pq" path="res://map/blocks/block_kirbbb.tscn" id="2_kirbbb"]
+[ext_resource type="PackedScene" path="res://map/blocks/block_boss_stage.tscn" id="3_stage"]
+[ext_resource type="PackedScene" path="res://map/blocks/block_platform_large.tscn" id="4_plat_l"]
+[ext_resource type="PackedScene" path="res://map/blocks/block_platform_small.tscn" id="5_plat_s"]
+[ext_resource type="PackedScene" path="res://map/blocks/block_step.tscn" id="6_step"]
+[ext_resource type="PackedScene" path="res://map/blocks/block_ramp.tscn" id="7_ramp"]
+[ext_resource type="PackedScene" path="res://map/blocks/block_pillar.tscn" id="8_pillar"]
+[ext_resource type="PackedScene" path="res://map/blocks/block_wall.tscn" id="9_wall"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_mfsvn"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_56xpt"]
+sky_material = SubResource("ProceduralSkyMaterial_mfsvn")
+
+[sub_resource type="Environment" id="Environment_56j8t"]
+background_mode = 2
+sky = SubResource("Sky_56xpt")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="Map1" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_56j8t")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Blocks" type="Node3D" parent="."]
+
+[node name="BlockFloor" parent="Blocks" instance=ExtResource("1_floor")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+
+[node name="BossStage" parent="Blocks" instance=ExtResource("3_stage")]
+
+[node name="Quadrant1" type="Node3D" parent="Blocks"]
+
+[node name="PlatformLarge" parent="Blocks/Quadrant1" instance=ExtResource("4_plat_l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, 22)
+
+[node name="Ramp" parent="Blocks/Quadrant1" instance=ExtResource("7_ramp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 22)
+
+[node name="Step" parent="Blocks/Quadrant1" instance=ExtResource("6_step")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21, 2, 25)
+
+[node name="PlatformSmall" parent="Blocks/Quadrant1" instance=ExtResource("5_plat_s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 2, 24)
+
+[node name="Pillar" parent="Blocks/Quadrant1" instance=ExtResource("8_pillar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 0)
+
+[node name="CornerPillar" parent="Blocks/Quadrant1" instance=ExtResource("8_pillar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31, 0, 31)
+
+[node name="Wall1" parent="Blocks/Quadrant1" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, -25)
+
+[node name="Wall2" parent="Blocks/Quadrant1" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, -15)
+
+[node name="Wall3" parent="Blocks/Quadrant1" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, -5)
+
+[node name="Wall4" parent="Blocks/Quadrant1" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, 5)
+
+[node name="Wall5" parent="Blocks/Quadrant1" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, 15)
+
+[node name="Wall6" parent="Blocks/Quadrant1" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, 25)
+
+[node name="Quadrant2" type="Node3D" parent="Blocks"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0, 0, 0)
+
+[node name="PlatformLarge" parent="Blocks/Quadrant2" instance=ExtResource("4_plat_l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, 22)
+
+[node name="Ramp" parent="Blocks/Quadrant2" instance=ExtResource("7_ramp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 22)
+
+[node name="Step" parent="Blocks/Quadrant2" instance=ExtResource("6_step")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21, 2, 25)
+
+[node name="PlatformSmall" parent="Blocks/Quadrant2" instance=ExtResource("5_plat_s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 2, 24)
+
+[node name="Pillar" parent="Blocks/Quadrant2" instance=ExtResource("8_pillar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 0)
+
+[node name="CornerPillar" parent="Blocks/Quadrant2" instance=ExtResource("8_pillar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31, 0, 31)
+
+[node name="Wall1" parent="Blocks/Quadrant2" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, -25)
+
+[node name="Wall2" parent="Blocks/Quadrant2" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, -15)
+
+[node name="Wall3" parent="Blocks/Quadrant2" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, -5)
+
+[node name="Wall4" parent="Blocks/Quadrant2" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, 5)
+
+[node name="Wall5" parent="Blocks/Quadrant2" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, 15)
+
+[node name="Wall6" parent="Blocks/Quadrant2" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, 25)
+
+[node name="Quadrant3" type="Node3D" parent="Blocks"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
+
+[node name="PlatformLarge" parent="Blocks/Quadrant3" instance=ExtResource("4_plat_l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, 22)
+
+[node name="Ramp" parent="Blocks/Quadrant3" instance=ExtResource("7_ramp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 22)
+
+[node name="Step" parent="Blocks/Quadrant3" instance=ExtResource("6_step")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21, 2, 25)
+
+[node name="PlatformSmall" parent="Blocks/Quadrant3" instance=ExtResource("5_plat_s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 2, 24)
+
+[node name="Pillar" parent="Blocks/Quadrant3" instance=ExtResource("8_pillar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 0)
+
+[node name="CornerPillar" parent="Blocks/Quadrant3" instance=ExtResource("8_pillar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31, 0, 31)
+
+[node name="Wall1" parent="Blocks/Quadrant3" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, -25)
+
+[node name="Wall2" parent="Blocks/Quadrant3" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, -15)
+
+[node name="Wall3" parent="Blocks/Quadrant3" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, -5)
+
+[node name="Wall4" parent="Blocks/Quadrant3" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, 5)
+
+[node name="Wall5" parent="Blocks/Quadrant3" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, 15)
+
+[node name="Wall6" parent="Blocks/Quadrant3" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, 25)
+
+[node name="Quadrant4" type="Node3D" parent="Blocks"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 0, 0, 0)
+
+[node name="PlatformLarge" parent="Blocks/Quadrant4" instance=ExtResource("4_plat_l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, 22)
+
+[node name="Ramp" parent="Blocks/Quadrant4" instance=ExtResource("7_ramp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 22)
+
+[node name="Step" parent="Blocks/Quadrant4" instance=ExtResource("6_step")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21, 2, 25)
+
+[node name="PlatformSmall" parent="Blocks/Quadrant4" instance=ExtResource("5_plat_s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 2, 24)
+
+[node name="Pillar" parent="Blocks/Quadrant4" instance=ExtResource("8_pillar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 0)
+
+[node name="CornerPillar" parent="Blocks/Quadrant4" instance=ExtResource("8_pillar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31, 0, 31)
+
+[node name="Wall1" parent="Blocks/Quadrant4" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, -25)
+
+[node name="Wall2" parent="Blocks/Quadrant4" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, -15)
+
+[node name="Wall3" parent="Blocks/Quadrant4" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, -5)
+
+[node name="Wall4" parent="Blocks/Quadrant4" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, 5)
+
+[node name="Wall5" parent="Blocks/Quadrant4" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, 15)
+
+[node name="Wall6" parent="Blocks/Quadrant4" instance=ExtResource("9_wall")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 30.5, 0, 25)
+
+[node name="Decoration" type="Node3D" parent="Blocks"]
+
+[node name="BlockKirbbb" parent="Blocks/Decoration" instance=ExtResource("2_kirbbb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -22)
