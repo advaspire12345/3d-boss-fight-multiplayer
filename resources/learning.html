@@ -65,6 +65,19 @@
   figure img { display: block; width: 100%; border-radius: 12px; border: 1px solid var(--line); }
   figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; }
 
+  figure video { display: block; width: 100%; border-radius: 12px; border: 1px solid var(--line); background: #0d0f13; }
+  .clip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: .05em;
+          text-transform: uppercase; color: var(--accent); background: var(--accent-soft);
+          border: 1px solid var(--line); border-radius: 999px; padding: 3px 11px; margin-bottom: 10px; }
+
+  .watch { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 14px;
+           padding: 20px clamp(16px, 3vw, 26px); margin: 24px 0; }
+  .watch h2 { margin: 0 0 6px; font-size: 21px; }
+  .watch p { margin: 0 0 14px; color: var(--muted); font-size: 15px; }
+  .watch video { display: block; width: 100%; border-radius: 12px; border: 1px solid var(--line); background: #0d0f13; }
+  .watch ol { margin: 14px 0 0; padding-left: 20px; color: var(--muted); font-size: 14px; columns: 2; column-gap: 28px; }
+  .watch ol li { margin: 2px 0; break-inside: avoid; }
+
   section.step { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 28px clamp(18px, 4vw, 36px); margin-bottom: 24px; }
   section.step > h2 { display: flex; align-items: center; gap: 14px; margin: 0 0 16px; font-size: 24px; line-height: 1.25; }
   .num { flex: none; width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: var(--accent); color: #fff; font-size: 18px; }
@@ -133,16 +146,30 @@
 <header class="hero">
   <div class="eyebrow">3D Boss Fight Multiplayer · Lesson 1</div>
   <h1>Building the Boss Arena</h1>
-  <p class="lede">Build a 3D arena in Godot from reusable blocks, including 3D models you made yourself (.glb). This lesson covers the map only. Players, the boss and multiplayer come in later lessons.</p>
+  <p class="lede">Build a 3D arena in Godot from reusable blocks, including 3D models you made yourself (.glb). This lesson covers the map only. Players, the boss and multiplayer come in later lessons. Every step has a short <b>screen recording</b> of the same thing being done in the editor, and there is one <b>full walkthrough video</b> below that strings them all together — press play and follow along.</p>
   <div class="meta">
     <span class="chip">Godot 4.4</span>
     <span class="chip">Beginner</span>
     <span class="chip">~60–90 min</span>
+    <span class="chip">9 clips + full walkthrough</span>
   </div>
   <figure>
     <img src="images/map_preview.png" alt="Finished arena: blue floor, gray walls, red boss stage in the center, pillars, and orange platforms with yellow ramps in each corner">
     <figcaption>What you'll build: a walled arena with a boss stage, cover pillars and climbable corner platforms.</figcaption>
   </figure>
+  <div class="watch">
+    <h2>▶ Watch the whole lesson (2 minutes)</h2>
+    <p>One video, every step in order. Follow it in the editor and you can build the arena without reading anything below.</p>
+    <video src="videos/p1_lesson1_full.mp4" controls playsinline preload="metadata" poster="images/map_preview.png" title="Lesson 1 walkthrough: every step from empty project to finished arena"></video>
+    <ol>
+      <li>Set up the folders</li>
+      <li>Create the map scene</li>
+      <li>Make a block</li>
+      <li>Make the full block set</li>
+      <li>Use your own GLB model</li>
+      <li>Build the arena</li>
+    </ol>
+  </div>
   <div class="callout note">
     <span class="label">What you'll learn</span>
     <ul>
@@ -162,6 +189,11 @@
   blocks/     <span class="c">← one .tscn file per block type</span>
   models/     <span class="c">← your .glb files go here</span>
   map1.tscn   <span class="c">← the arena itself</span></pre>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p1_folders.mp4" controls loop muted playsinline preload="metadata" title="Creating the map, blocks and models folders in the FileSystem dock"></video>
+    <figcaption>Starting from an empty project: <code>map/</code>, then <code>map/blocks/</code> and <code>map/models/</code> inside it.</figcaption>
+  </figure>
   <div class="callout tip"><span class="label">Why</span><p>Keeping the source models (<code>models/</code>) apart from the blocks you place (<code>blocks/</code>) keeps the project tidy as it grows.</p></div>
 </section>
 
@@ -177,6 +209,11 @@
   <figure>
     <img src="images/step2_light_sky.png" alt="Godot editor with the Sun and Environment settings popup open, showing the Add Sun to Scene and Add Environment to Scene buttons" loading="lazy">
     <figcaption>Click the <b>⋮</b> button (top red box), then <b>Add Sun to Scene</b> and <b>Add Environment to Scene</b>.</figcaption>
+  </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p1_scene.mp4" controls loop muted playsinline preload="metadata" title="Creating the map scene and adding sun and environment"></video>
+    <figcaption>The whole of Step 2: a new 3D scene, renamed <code>Map1</code>, then <b>Add Sun to Scene</b> and <b>Add Environment to Scene</b>. Watch the viewport go from flat grey to lit.</figcaption>
   </figure>
 <pre>Map1 (Node3D)
 ├── WorldEnvironment
@@ -205,6 +242,11 @@
   <figure>
     <img src="images/step3_block_inspector.png" alt="Godot editor with MeshInstance3D selected and the BoxMesh opened in the Inspector, showing Size 2, 1, 2 and the Material slot" loading="lazy">
     <figcaption>Select the <b>MeshInstance3D</b>, then click the box picture next to <b>Mesh</b> to open the BoxMesh settings. <b>Size</b> and <b>Material</b> are inside it.</figcaption>
+  </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p1_block_mesh.mp4" controls loop muted playsinline preload="metadata" title="Building the block mesh in the inspector"></video>
+    <figcaption>Adding the MeshInstance3D, giving it a <b>BoxMesh</b>, stretching <b>Size</b> to <code>(2, 1, 2)</code> and dropping a green <b>StandardMaterial3D</b> into the Material slot.</figcaption>
   </figure>
 
   <h3>3b. The collision: pick one of two ways</h3>
@@ -237,6 +279,11 @@
     <img src="images/step3_collision_dialog.png" alt="Create Collision Shape dialog with placement set to Sibling and type set to Single Convex" loading="lazy">
     <figcaption>Set the placement to <b>Sibling</b> and the type to <b>Single Convex</b>, then click <b>Create</b>.</figcaption>
   </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p1_collision.mp4" controls loop muted playsinline preload="metadata" title="Creating the collision shape from the Mesh menu"></video>
+    <figcaption>Way A end to end: <span class="ui">Mesh → Create Collision Shape…</span>, set <b>Sibling</b> and <b>Single Convex</b>, press <b>Create</b>, and the CollisionShape3D appears in the Scene tree.</figcaption>
+  </figure>
   <p style="margin-top:16px">Which <span class="ui">Create Collision Shape</span> type should you choose?</p>
   <div class="table-wrap"><table>
     <tr><th>Type</th><th>Use it for</th></tr>
@@ -258,6 +305,11 @@
 <pre>BlockStep (StaticBody3D)        <span class="c">← origin at the bottom-center</span>
 ├── MeshInstance3D      y = 0.5  <span class="c">← BoxMesh 2×1×2</span>
 └── CollisionShape3D    y = 0.5  <span class="c">← BoxShape3D 2×1×2</span></pre>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p1_origin.mp4" controls loop muted playsinline preload="metadata" title="Moving the mesh and collision up so the origin sits at the bottom"></video>
+    <figcaption>Both children moving from <code>Y = 0</code> to <code>Y = 0.5</code>. The block lifts until it sits <b>on</b> the grid instead of half-sunk through it.</figcaption>
+  </figure>
   <div class="callout tip"><span class="label">Why this helps</span><p>With the origin at the bottom, a block's Y position is the height of whatever it stands on. Put it at <code>Y = 0</code> to stand it on the floor, or at <code>Y = 2</code> to stand it on a 2 m platform. No extra math needed.</p></div>
 
   <p>Save the scene as <code>map/blocks/block_step.tscn</code>.</p>
@@ -281,6 +333,11 @@
     <tr><td><code>block_wall</code></td><td>Box 10 × 3 × 1</td><td><span class="sw" style="background:var(--c-wall)"></span>gray</td><td>arena border</td></tr>
   </table></div>
   <div class="callout tip"><span class="label">Keep sizes simple</span><p>Use whole meters (1, 2, 4, 8, 10). Blocks then snap together without gaps.</p></div>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p1_blockset.mp4" controls loop muted playsinline preload="metadata" title="Tour of the seven finished block scenes"></video>
+    <figcaption>The finished set, one scene at a time: platform large, platform small, step, ramp, pillar, wall and the boss stage. Every one is the same two-child recipe from Step 3.</figcaption>
+  </figure>
   <div class="callout note"><span class="label">The ramp</span><p>A PrismMesh is a triangle shape. With <b>Left To Right = 1</b>, the high end is on the +X side, which makes a ramp. Give it collision with <span class="ui">Mesh → Create Collision Shape → Single Convex</span>.</p></div>
 </section>
 
@@ -301,6 +358,11 @@
   <figure>
     <img src="images/step5_import_glb.png" alt="Advanced Import Settings for kirbbb.glb with the mesh node selected and Physics on, Body Type Static, Shape Type Trimesh" loading="lazy">
     <figcaption>Advanced Import Settings: select the <b>mesh node</b> (left), turn on <b>Physics</b> with <b>Static</b> and <b>Trimesh</b> (right), then click <b>Reimport</b>.</figcaption>
+  </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p1_glb.mp4" controls loop muted playsinline preload="metadata" title="Importing a GLB model with collision and wrapping it in a block scene"></video>
+    <figcaption>Double-clicking the <code>.glb</code>, picking the mesh node, turning on <b>Physics</b>, pressing <b>Reimport</b> — then the finished <code>block_kirbbb.tscn</code> wrapper scene.</figcaption>
   </figure>
 
   <h3>5b. Wrap it in a block scene</h3>
@@ -341,6 +403,11 @@
   <figure>
     <img src="images/step6_snapping.png" alt="Godot editor showing the arena, with the Use Snap magnet button turned on and the Snap Settings dialog open" loading="lazy">
     <figcaption>The <b>Use Snap</b> button turns blue when it's on. <b>Transform → Configure Snap…</b> opens the Snap Settings.</figcaption>
+  </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p1_snapping.mp4" controls loop muted playsinline preload="metadata" title="Turning on snapping and opening the snap settings"></video>
+    <figcaption>Turning on <b>Use Snap</b> (the magnet goes blue) and opening <span class="ui">Transform → Configure Snap…</span> to check Translate 1 m and Rotate 15°.</figcaption>
   </figure>
 
   <h3>6b. Place blocks</h3>
@@ -410,6 +477,11 @@
 ├── Quadrant4         <span class="c">rotation Y = 270</span>
 └── Decoration
     └── BlockKirbbb</pre>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p1_arena.mp4" controls loop muted playsinline preload="metadata" title="The arena assembling block by block, then the quadrant copied three times"></video>
+    <figcaption>The whole arena going up in order: floor, boss stage, then Quadrant1 block by block — and finally the three rotated copies and the decoration. This is what Steps 6b–6d add up to.</figcaption>
+  </figure>
 
   <div class="callout tip"><span class="label">Designing a boss arena</span>
     <ul>
