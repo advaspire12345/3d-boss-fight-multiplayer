@@ -65,6 +65,18 @@
   figure img { display: block; width: 100%; border-radius: 12px; border: 1px solid var(--line); }
   figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; }
 
+  figure video { display: block; width: 100%; border-radius: 12px; border: 1px solid var(--line); background: #0d0f13; }
+  .clip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: .05em;
+          text-transform: uppercase; color: var(--accent); background: var(--accent-soft);
+          border: 1px solid var(--line); border-radius: 999px; padding: 3px 11px; margin-bottom: 10px; }
+  .watch { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 14px;
+           padding: 20px clamp(16px, 3vw, 26px); margin: 24px 0; }
+  .watch h2 { margin: 0 0 6px; font-size: 21px; }
+  .watch p { margin: 0 0 14px; color: var(--muted); font-size: 15px; }
+  .watch video { display: block; width: 100%; border-radius: 12px; border: 1px solid var(--line); background: #0d0f13; }
+  .watch ol { margin: 14px 0 0; padding-left: 20px; color: var(--muted); font-size: 14px; columns: 2; column-gap: 28px; }
+  .watch ol li { margin: 2px 0; break-inside: avoid; }
+
   section.step { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 28px clamp(18px, 4vw, 36px); margin-bottom: 24px; }
   section.step > h2 { display: flex; align-items: center; gap: 14px; margin: 0 0 16px; font-size: 24px; line-height: 1.25; }
   .num { flex: none; width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: var(--accent); color: #fff; font-size: 18px; }
@@ -136,17 +148,31 @@
 <header class="hero">
   <div class="eyebrow">3D Boss Fight Multiplayer · Lesson 2</div>
   <h1>Your Hero: A Third-Person Player</h1>
-  <p class="lede">Put your own 3D character into the arena and control it: WASD to walk, the mouse to look around, and Space to jump. This lesson is for <b>single player</b>. Multiplayer builds on this player in a later lesson.</p>
+  <p class="lede">Put your own 3D character into the arena and control it: WASD to walk, the mouse to look around, and Space to jump. This lesson is for <b>single player</b>. Multiplayer builds on this player in a later lesson. Every step has a short <b>screen recording</b>, and the <b>full walkthrough video</b> below strings them all together.</p>
   <div class="meta">
     <span class="chip">Godot 4.4</span>
     <span class="chip">Beginner</span>
     <span class="chip">~90 min</span>
     <span class="chip">Needs Lesson 1</span>
+    <span class="chip">9 clips + full walkthrough</span>
   </div>
   <figure>
     <img src="images/p2_ingame_spawn.png" alt="In-game third-person view: a knight character seen from behind, standing in the arena with pillars, the boss stage and platforms ahead">
     <figcaption>What you'll build: the camera follows your character from behind, and you look around with the mouse.</figcaption>
   </figure>
+  <div class="watch">
+    <h2>▶ Watch the whole lesson (2½ minutes)</h2>
+    <p>One video, every step in order, ending with the finished game being played. Follow it in the editor and you can build the player without reading anything below.</p>
+    <video src="videos/p2_lesson2_full.mp4" controls playsinline preload="metadata" poster="images/p2_ingame_spawn.png" title="Lesson 2 walkthrough: every step from importing the model to walking around the arena"></video>
+    <ol>
+      <li>Import your character</li>
+      <li>Name your keys in the Input Map</li>
+      <li>Build the Player scene</li>
+      <li>The player script</li>
+      <li>Put it together in a Game scene</li>
+      <li>Set the main scene and play</li>
+    </ol>
+  </div>
   <div class="table-wrap"><table>
     <tr><th>Key</th><th>Action</th></tr>
     <tr><td><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></td><td>Walk forward, left, back and right (relative to where the camera looks)</td></tr>
@@ -174,6 +200,11 @@
     <li>That's it. <b>Don't</b> turn on Physics in the import settings. The player gets its own collision shape (a capsule) in Step 3.</li>
   </ol>
   <div class="callout warn"><span class="label">Why no physics on the model?</span><p>In Lesson 1, map blocks needed Trimesh collision because players stand on them. A player is different. A detailed mesh collision on a moving character is slow and snags on everything. A simple <b>capsule</b> slides smoothly over floors, ramps and steps.</p></div>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p2_import.mp4" controls loop muted playsinline preload="metadata" title="Checking the character GLB import settings"></video>
+    <figcaption>The .glb sitting in <code>character/</code>, opened in Advanced Import Settings to check that <b>Physics stays off</b>.</figcaption>
+  </figure>
   <h3>Check three things about your model</h3>
   <div class="table-wrap"><table>
     <tr><th>Check</th><th>What you want</th><th>Our knight</th></tr>
@@ -207,6 +238,11 @@
     <img src="images/p2_input_map.png" alt="Project Settings Input Map tab listing move_forward W, move_back S, move_left A, move_right D and jump Space" loading="lazy">
     <figcaption>Type the name in <b>Add New Action</b> (top box), then give each action its key. It should end up looking like this.</figcaption>
   </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p2_inputmap.mp4" controls loop muted playsinline preload="metadata" title="Adding the five input actions in Project Settings"></video>
+    <figcaption>All five actions being added by name. In the editor you then click each action's <b>+</b> and press the key you want — the clip fills them in so you can see the finished map.</figcaption>
+  </figure>
   <div class="callout warn"><span class="label">Spell them exactly</span><p>The names must match the script letter for letter: all lowercase, with an underscore. <code>Move_Forward</code> or <code>move forward</code> won't work, and the game prints an error saying the action doesn't exist.</p></div>
 </section>
 
@@ -237,6 +273,11 @@
     <img src="images/p2_capsule.png" alt="CollisionShape3D selected with a CapsuleShape3D of radius 0.4 and height 1.8 in the Inspector" loading="lazy">
     <figcaption>The capsule: 0.4 m radius, 1.8 m tall, moved up 0.9 m.</figcaption>
   </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p2_body.mp4" controls loop muted playsinline preload="metadata" title="Building the player body and capsule collider"></video>
+    <figcaption>A new scene with a <b>CharacterBody3D</b> root named Player, a CollisionShape3D child, a CapsuleShape3D sized 0.4 × 1.8, and the capsule lifted 0.9 m so its bottom sits at the feet.</figcaption>
+  </figure>
 
   <h3>3b. The model</h3>
   <ol>
@@ -253,6 +294,11 @@
     <img src="images/p2_model_rotation.png" alt="The Model node selected with Rotation Y set to 180 degrees, so the knight faces away from the blue Z arrow" loading="lazy">
     <figcaption>Turn <b>Model</b> 180° on Y.</figcaption>
   </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p2_model.mp4" controls loop muted playsinline preload="metadata" title="Scaling, centring and turning the character model"></video>
+    <figcaption>The knight comes in 71 m tall, shrinks to <code>0.025</code>, slides to <code>(-0.12, 0, 0.42)</code> inside the capsule, and then Model turns 180° so he faces away from you.</figcaption>
+  </figure>
   <div class="callout warn"><span class="label">Why turn it 180°?</span><p>A .glb character faces <b>+Z</b>, but a Godot camera looks toward <b>−Z</b>. Without the turn, the game starts with the character facing you like in a selfie. Turning <b>Model</b> (not the .glb inside it) keeps the size and position you just set.</p></div>
 
   <h3>3c. The camera</h3>
@@ -265,6 +311,11 @@
   <figure>
     <img src="images/p2_spring_arm.png" alt="SpringArm3D selected with Spring Length 4 and Margin 0.2 in the Inspector" loading="lazy">
     <figcaption>SpringArm3D holds the camera 4 m behind the head.</figcaption>
+  </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p2_camera.mp4" controls loop muted playsinline preload="metadata" title="Adding the camera pivot, spring arm and camera"></video>
+    <figcaption>CameraPivot rising to head height, the SpringArm3D extending to 4 m and tilting down 17°, then the Camera3D going on the end of it.</figcaption>
   </figure>
   <div class="callout tip"><span class="label">What does a SpringArm3D do?</span><p>It's like a selfie stick. It holds the camera 4 m away, but if a wall or pillar gets between the camera and the character, it pulls the camera in closer. That way the camera never ends up inside a wall.</p></div>
 </section>
@@ -360,6 +411,11 @@ func _physics_process(delta: float) -&gt; void:
     <img src="images/p2_script_attached.png" alt="Player selected with the exported Speed, Jump Velocity, Mouse Sensitivity and Turn Speed shown in the Inspector" loading="lazy">
     <figcaption>Every <code>@export</code> variable shows up in the Inspector when you select Player.</figcaption>
   </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p2_script.mp4" controls loop muted playsinline preload="metadata" title="Attaching the player script and reading through it"></video>
+    <figcaption>Attaching <code>player.gd</code>, scrolling through what it does, then back in the 3D view where the <code>@export</code> values are waiting in the Inspector.</figcaption>
+  </figure>
   <div class="callout tip"><span class="label">Walking relative to the camera</span><p><code>Input.get_vector()</code> turns WASD into a 2D direction. Multiplying it by <code>camera_pivot.global_basis</code> rotates it to match where the camera is looking. That's why <kbd>W</kbd> always walks "into the screen", whichever way you've turned the mouse.</p></div>
 </section>
 
@@ -379,6 +435,11 @@ func _physics_process(delta: float) -&gt; void:
     <img src="images/p2_game_scene.png" alt="Game scene with Map1 and Player; Player selected with Position -10, 0, -22 and Rotation Y 180" loading="lazy">
     <figcaption>The Game scene: the map plus one player, placed at the edge of the arena.</figcaption>
   </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p2_game.mp4" controls loop muted playsinline preload="metadata" title="Building the Game scene from the map and the player"></video>
+    <figcaption>A new Game scene, the map dropped in, then the player — moved to <code>(-10, 0, -22)</code> and turned 180° so he starts at the edge facing the middle.</figcaption>
+  </figure>
   <div class="callout note"><span class="label">Why a separate Game scene?</span><p>The map stays just a map, and the player stays just a player. For multiplayer, the Game scene will add <b>one Player per person</b>, and neither the map nor the player scene needs to change.</p></div>
 </section>
 
@@ -395,10 +456,20 @@ func _physics_process(delta: float) -&gt; void:
     <img src="images/p2_main_scene.png" alt="Project Settings General tab filtered by main scene, showing Application Run Main Scene set to res://game.tscn" loading="lazy">
     <figcaption>Main Scene set to <code>res://game.tscn</code>. Shortcut: right-click <code>game.tscn</code> in FileSystem and choose <b>Set as Main Scene</b>.</figcaption>
   </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p2_mainscene.mp4" controls loop muted playsinline preload="metadata" title="Setting the main scene in Project Settings"></video>
+    <figcaption>Filtering Project Settings for <code>main_scene</code>, opening <b>Application → Run</b>, and checking that Main Scene points at <code>res://game.tscn</code>.</figcaption>
+  </figure>
   <p>Press <kbd>F5</kbd>. Walk around, climb a ramp onto a corner platform, and jump onto the green step.</p>
   <figure>
     <img src="images/p2_ingame_platform.png" alt="In-game view of the knight standing on an orange corner platform next to the green step and the higher platform" loading="lazy">
     <figcaption>On a corner platform. The jump (about 1.6 m) is high enough for the 1 m steps up to the lookout.</figcaption>
+  </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p2_play.mp4" controls loop muted playsinline preload="metadata" title="Gameplay: walking, looking and jumping in the arena"></video>
+    <figcaption>The finished lesson, recorded from the running game: looking around with the mouse, walking with WASD, jumping with Space, and the knight turning to face the way he walks.</figcaption>
   </figure>
 </section>
 
