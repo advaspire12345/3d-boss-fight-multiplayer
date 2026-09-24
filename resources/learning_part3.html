@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 3 · Animation</title>
+<style>
+  :root {
+    --bg: #f6f5f1;
+    --paper: #ffffff;
+    --ink: #1d1f24;
+    --muted: #5d6270;
+    --line: #e3e1da;
+    --accent: #4f63e0;
+    --accent-soft: #eceffd;
+    --tip: #1f8a55;
+    --tip-soft: #e7f5ee;
+    --warn: #b5530f;
+    --warn-soft: #fcf0e4;
+    --code-bg: #f1f0ec;
+    --c-floor: #6c80ff;
+    --c-stage: #d94040;
+    --c-plat: #ff8c33;
+    --c-plat2: #ffb366;
+    --c-step: #59cc66;
+    --c-ramp: #ffd933;
+    --c-pillar: #4d4d59;
+    --c-wall: #9999a6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #16171b; --paper: #1e2026; --ink: #e8e9ee; --muted: #a0a5b3; --line: #2f323b;
+      --accent: #8e9cff; --accent-soft: #252a45; --tip: #5fd198; --tip-soft: #1b2e25;
+      --warn: #f0a060; --warn-soft: #33261a; --code-bg: #262830;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #16171b; --paper: #1e2026; --ink: #e8e9ee; --muted: #a0a5b3; --line: #2f323b;
+    --accent: #8e9cff; --accent-soft: #252a45; --tip: #5fd198; --tip-soft: #1b2e25;
+    --warn: #f0a060; --warn-soft: #33261a; --code-bg: #262830;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding-inline: 16px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 40px; padding-block: 40px 80px; }
+  @media (max-width: 860px) { .wrap { grid-template-columns: 1fr; gap: 0; padding-block: 24px 60px; } nav.toc { display: none; } }
+
+  nav.toc { position: sticky; top: 24px; align-self: start; font-size: 14px; }
+  nav.toc b { display: block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  nav.toc a { display: block; color: var(--muted); text-decoration: none; padding: 4px 0 4px 12px; border-left: 2px solid var(--line); }
+  nav.toc a:hover { color: var(--accent); border-left-color: var(--accent); }
+
+  header.hero { margin-bottom: 40px; }
+  .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(30px, 5vw, 42px); line-height: 1.15; margin: 8px 0 12px; }
+  .lede { font-size: 18px; color: var(--muted); margin: 0 0 20px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font-size: 13px; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; }
+
+  figure { margin: 24px 0; }
+  figure img { display: block; width: 100%; border-radius: 12px; border: 1px solid var(--line); }
+  figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; }
+
+  figure video { display: block; width: 100%; border-radius: 12px; border: 1px solid var(--line); background: #0d0f13; }
+  .clip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: .05em;
+          text-transform: uppercase; color: var(--accent); background: var(--accent-soft);
+          border: 1px solid var(--line); border-radius: 999px; padding: 3px 11px; margin-bottom: 10px; }
+  .watch { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 14px;
+           padding: 20px clamp(16px, 3vw, 26px); margin: 24px 0; }
+  .watch h2 { margin: 0 0 6px; font-size: 21px; }
+  .watch p { margin: 0 0 14px; color: var(--muted); font-size: 15px; }
+  .watch video { display: block; width: 100%; border-radius: 12px; border: 1px solid var(--line); background: #0d0f13; }
+  .watch ol { margin: 14px 0 0; padding-left: 20px; color: var(--muted); font-size: 14px; columns: 2; column-gap: 28px; }
+  .watch ol li { margin: 2px 0; break-inside: avoid; }
+
+  section.step { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 28px clamp(18px, 4vw, 36px); margin-bottom: 24px; }
+  section.step > h2 { display: flex; align-items: center; gap: 14px; margin: 0 0 16px; font-size: 24px; line-height: 1.25; }
+  .num { flex: none; width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: var(--accent); color: #fff; font-size: 18px; }
+  h3 { font-size: 18px; margin: 28px 0 8px; }
+  p { margin: 0 0 14px; }
+  ol, ul { padding-left: 22px; margin: 0 0 14px; }
+  li { margin-bottom: 6px; }
+  li::marker { color: var(--muted); }
+
+  code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .9em; background: var(--code-bg); padding: 1px 6px; border-radius: 5px; }
+  pre { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 14px; line-height: 1.55; background: var(--code-bg); padding: 14px 18px; border-radius: 10px; overflow-x: auto; margin: 0 0 16px; }
+  pre .c { color: var(--muted); }
+  kbd { font-family: ui-monospace, Consolas, monospace; font-size: .85em; background: var(--paper); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 0 6px; }
+  .ui { font-weight: 600; }
+
+  .callout { border-radius: 10px; padding: 14px 18px; margin: 18px 0; border-left: 4px solid; }
+  .callout p:last-child, .callout ul:last-child, .callout ol:last-child { margin-bottom: 0; }
+  .callout .label { display: block; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
+  .tip { background: var(--tip-soft); border-color: var(--tip); }
+  .tip .label { color: var(--tip); }
+  .warn { background: var(--warn-soft); border-color: var(--warn); }
+  .warn .label { color: var(--warn); }
+  .note { background: var(--accent-soft); border-color: var(--accent); }
+  .note .label { color: var(--accent); }
+
+  .table-wrap { overflow-x: auto; margin: 0 0 16px; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; border: 1px solid rgba(0,0,0,.15); }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .two { grid-template-columns: 1fr; } }
+  .card { border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .card h4 { margin: 0 0 8px; font-size: 16px; }
+  .card p:last-child, .card ol:last-child { margin-bottom: 0; }
+
+  .diagram { background: var(--code-bg); border-radius: 12px; padding: 16px; overflow-x: auto; }
+  .diagram svg { display: block; width: 100%; max-width: 520px; min-width: 300px; margin: 0 auto; }
+  .diagram svg text { fill: var(--muted); font-family: system-ui, sans-serif; }
+
+  .check { list-style: none; padding-left: 0; }
+  .check li { padding-left: 30px; position: relative; }
+  .check li::before { content: ""; position: absolute; left: 2px; top: 5px; width: 16px; height: 16px; border: 2px solid var(--accent); border-radius: 4px; }
+
+  footer { color: var(--muted); font-size: 14px; text-align: center; margin-top: 32px; }
+  footer a, nav.toc a.back { color: var(--accent); }
+  nav.toc a.back { margin-top: 14px; border-left-color: transparent; }
+  pre .hl { display: inline-block; min-width: 100%; background: color-mix(in srgb, var(--tip) 20%, transparent); box-shadow: -18px 0 0 color-mix(in srgb, var(--tip) 20%, transparent), -21px 0 0 var(--tip); }
+  .legend { font-size: 14px; color: var(--muted); margin: -6px 0 12px; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; background: color-mix(in srgb, var(--tip) 20%, transparent); border-left: 3px solid var(--tip); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="toc" aria-label="Contents">
+  <b>Contents</b>
+  <a href="#s1">1. Rig it on Mixamo</a>
+  <a href="#s2">2. The import script</a>
+  <a href="#s3">3. Swap in the character</a>
+  <a href="#s4">4. AnimationPlayer</a>
+  <a href="#s5">5. Attack input</a>
+  <a href="#s6">6. AnimationTree</a>
+  <a href="#s7">7. The player script</a>
+  <a href="#s8">8. Play it</a>
+  <a href="#s9">9. Tuning</a>
+  <a href="#s10">10. Troubleshooting</a>
+  <a href="#s11">11. Challenges</a>
+  <a href="learning_part2.html" class="back">← Lesson 2: The Player</a>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="eyebrow">3D Boss Fight Multiplayer · Lesson 3</div>
+  <h1>Bring Your Hero to Life: Animation</h1>
+  <p class="lede">Give your character a skeleton on <b>Mixamo</b>, bring four animations into Godot (idle, run, jump and punch), and blend them with an <b>AnimationTree</b> so you can punch while running or jumping. Every step has a short <b>screen recording</b>, and the <b>full walkthrough video</b> below strings them all together.</p>
+  <div class="meta">
+    <span class="chip">Godot 4.4</span>
+    <span class="chip">Beginner+</span>
+    <span class="chip">~2 hours</span>
+    <span class="chip">Needs Lesson 2</span>
+    <span class="chip">14 clips + full walkthrough</span>
+  </div>
+  <figure>
+    <img src="images/p3_hero.png" alt="In-game view: the Minecraft-style hero running across the arena and throwing a punch at the same time">
+    <figcaption>What you'll build: the legs keep running while the arms throw a punch.</figcaption>
+  </figure>
+  <div class="watch">
+    <h2>▶ Watch the whole lesson (about 7 minutes)</h2>
+    <p>One video, every step in order, ending with the finished game being played. Follow it in the editor and you can build the whole lesson without reading anything below.</p>
+    <video src="videos/p3_lesson3_full.mp4" controls playsinline preload="metadata" poster="images/p3_hero.png" title="Lesson 3 walkthrough: from Mixamo animations to punching while running"></video>
+    <ol>
+      <li>Rig and animate on Mixamo</li>
+      <li>The import script</li>
+      <li>Swap in the new character</li>
+      <li>Give it an AnimationPlayer</li>
+      <li>Add an attack action</li>
+      <li>Build the AnimationTree</li>
+      <li>Update the player script</li>
+      <li>Punch while you run</li>
+    </ol>
+  </div>
+  <div class="table-wrap"><table>
+    <tr><th>Key</th><th>Action</th></tr>
+    <tr><td><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></td><td>Run (the run animation plays)</td></tr>
+    <tr><td>Mouse</td><td>Turn the camera</td></tr>
+    <tr><td><kbd>Space</kbd></td><td>Jump</td></tr>
+    <tr><td>Left click</td><td><b>Punch</b>, standing, running or in the air</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Show the mouse again. The first click back in the game only hides it and doesn't punch.</td></tr>
+  </table></div>
+  <div class="callout note">
+    <span class="label">What you'll learn</span>
+    <ul>
+      <li>How to give a Tinkercad model a <b>skeleton</b> and animations on Mixamo</li>
+      <li>How an <b>import script</b> fixes every animation automatically when it's imported</li>
+      <li>How <b>AnimationPlayer</b> stores clips and <b>AnimationTree</b> mixes them</li>
+      <li>How a <b>Transition</b> node switches between idle, run and jump</li>
+      <li>How a <b>OneShot</b> node with a <b>bone filter</b> plays a punch on the upper body only</li>
+    </ul>
+  </div>
+</header>
+
+<!-- STEP 1 -->
+<section class="step" id="s1">
+  <h2><span class="num">1</span>Rig and animate on Mixamo</h2>
+  <p>To animate a model, it needs a <b>skeleton</b>: bones inside the mesh that bend it. Tinkercad models don't have one. <b>Mixamo</b> (mixamo.com, free with an Adobe account) adds a skeleton automatically, then lets you pick ready-made animations.</p>
+
+  <h3>1a. Pose and export from Tinkercad</h3>
+  <p>Mixamo can only rig a humanoid that is:</p>
+  <ul>
+    <li>standing upright and <b>facing the front</b></li>
+    <li>in a <b>T-pose or A-pose</b>: arms held out, not touching the body</li>
+    <li>standing with the legs a little apart</li>
+  </ul>
+  <ol>
+    <li>In Tinkercad, click <span class="ui">Export</span> and choose <b>.OBJ</b>. You get a <code>.zip</code> with an <code>.obj</code> and an <code>.mtl</code> (the colors).</li>
+    <li><b>Don't unzip it.</b> Mixamo takes the .zip as it is. Mixamo doesn't accept .glb, which is why we use OBJ.</li>
+  </ol>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p3_mixamo_export.mp4" controls loop muted playsinline preload="metadata" title="Exporting the character from Tinkercad as OBJ"></video>
+    <figcaption>Tinkercad: check the T-pose from a few angles, select everything, then <b>Export</b> with <b>The selected shape</b> and click <b>.OBJ</b>. Keep the .zip as it is.</figcaption>
+  </figure>
+  <div class="callout tip"><span class="label">Keep the zip</span><p>Save the Tinkercad .zip in your project's <code>character/</code> folder, for example <code>character/minecraft.zip</code>. If you ever want more animations, you can upload it again. Godot ignores .zip files, so it doesn't get in the way.</p></div>
+
+  <h3>1b. Upload and auto-rig</h3>
+  <ol>
+    <li>Go to <b>mixamo.com</b>, sign in, and click <span class="ui">Upload Character</span>. Drop the .zip in.</li>
+    <li>Check that the model stands upright and faces you. If it doesn't, use the rotate buttons. Click <span class="ui">Next</span>.</li>
+    <li>Drag the circles onto the <b>chin</b>, both <b>wrists</b>, both <b>elbows</b>, both <b>knees</b> and the <b>groin</b>. Leave <span class="ui">Use Symmetry</span> on and set <span class="ui">Skeleton LOD</span> to <b>No Fingers</b>. A blocky hand doesn't need finger bones.</li>
+    <li>Click <span class="ui">Next</span> and wait about a minute. Check the preview: if an arm or leg looks badly bent, go <span class="ui">Back</span> and move the markers.</li>
+  </ol>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p3_mixamo_upload.mp4" controls loop muted playsinline preload="metadata" title="Uploading the character to Mixamo"></video>
+    <figcaption>Mixamo: <b>Upload Character</b>, pick the .zip, then use the rotate buttons until the character stands upright facing you. The upload wait is cut short.</figcaption>
+  </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p3_mixamo_rig.mp4" controls loop muted playsinline preload="metadata" title="Placing the auto-rigger markers"></video>
+    <figcaption>The auto-rigger: chin, wrists, elbows, knees and groin, with <b>No Fingers</b>. The 2–3 minute wait is skipped; the clip ends on the rigged character running.</figcaption>
+  </figure>
+
+  <h3>1c. Pick four animations</h3>
+  <p>Search the <span class="ui">Animations</span> tab. Any similar animation works:</p>
+  <div class="table-wrap"><table>
+    <tr><th>Our name</th><th>Search Mixamo for</th><th>Setting</th></tr>
+    <tr><td><code>idle</code></td><td>Breathing Idle</td><td>–</td></tr>
+    <tr><td><code>run</code></td><td>Running</td><td>Tick <b>In Place</b></td></tr>
+    <tr><td><code>jump</code></td><td>Jump</td><td>Tick <b>In Place</b> if you see it</td></tr>
+    <tr><td><code>punch</code></td><td>Punching, Punch Combo, Cross Punch</td><td>Tick <b>In Place</b> if you see it</td></tr>
+  </table></div>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p3_mixamo_animations.mp4" controls loop muted playsinline preload="metadata" title="Choosing animations on Mixamo"></video>
+    <figcaption>Searching for Breathing Idle, Running, Jump and Punch Combo and downloading each one (played at 1.5× speed). <b>This recording leaves In Place unticked on Running</b>. Tick it when you do it. If you forget, the import script in Step 2 fixes it.</figcaption>
+  </figure>
+  <div class="callout warn"><span class="label">Why "In Place"?</span><p>Our script already moves the player. If the animation <i>also</i> walks forward, the model runs away from its collision capsule and snaps back every loop. If you forget, don't worry: the import script in Step 2 fixes it.</p></div>
+
+  <h3>1d. Download</h3>
+  <ol>
+    <li>For each animation, click <span class="ui">Download</span> with <b>Format: FBX Binary</b>, <b>Skin: With Skin</b>, <b>Frames per Second: 30</b>, <b>Keyframe Reduction: none</b>.</li>
+    <li>Rename the files <code>idle.fbx</code>, <code>run.fbx</code>, <code>jump.fbx</code> and <code>punch.fbx</code>, and put them in a new folder: <code>character/mixamo/</code>.</li>
+  </ol>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p3_mixamo_download.mp4" controls loop muted playsinline preload="metadata" title="Downloading an animation as FBX with skin"></video>
+    <figcaption>The download settings, close up: <b>FBX Binary</b>, <b>With Skin</b>, <b>30</b> fps, Keyframe Reduction <b>none</b>. Use the same settings for all four.</figcaption>
+  </figure>
+  <div class="callout note"><span class="label">Why the file names matter</span><p>The import script in the next step names each animation after its file. <code>run.fbx</code> becomes the animation <code>run</code>, and the rest of the lesson uses those four names.</p></div>
+</section>
+
+<!-- STEP 2 -->
+<section class="step" id="s2">
+  <h2><span class="num">2</span>The import script</h2>
+  <p>A Mixamo animation isn't quite ready for our game when it arrives:</p>
+  <div class="table-wrap"><table>
+    <tr><th>Problem</th><th>What the script does</th></tr>
+    <tr><td>The run (if not "In Place") walks 3 m forward every loop</td><td>Pins the hips over one spot, so the model stays in its capsule</td></tr>
+    <tr><td>The jump lifts the body itself, but <code>player.gd</code> already does the jumping</td><td>Also pins the hip <b>height</b> for <code>jump</code>, so it doesn't jump twice as high</td></tr>
+    <tr><td>Nothing loops</td><td>Makes <code>idle</code> and <code>run</code> repeat forever</td></tr>
+    <tr><td>In the editor the model lies half in the floor in Mixamo's T-pose</td><td>Stands it in the first pose of its animation</td></tr>
+    <tr><td>Every FBX brings its own AnimationPlayer, and Tinkercad leaves empty meshes behind</td><td>Removes them, and saves the animation on its own as <code>character/animations/&lt;name&gt;.res</code></td></tr>
+  </table></div>
+  <p>A script that runs <b>every time a file is imported</b> is called a <b>post-import script</b>. It extends <code>EditorScenePostImport</code>, and Godot calls its <code>_post_import()</code> with the imported scene.</p>
+
+  <h3>2a. Write the script</h3>
+  <ol>
+    <li>In FileSystem, right-click <code>scripts/</code> → <span class="ui">Create New → Script…</span></li>
+    <li>Name it <code>mixamo_import.gd</code>. The <span class="ui">Inherits</span> box doesn't matter, because you'll replace everything. Type in the code below.</li>
+  </ol>
+<pre>@tool
+extends EditorScenePostImport
+<span class="c">## Runs every time a Mixamo FBX in character/mixamo/ is imported.</span>
+<span class="c">## Saves its animation as character/animations/&lt;file name&gt;.res for the Player to play.</span>
+
+<span class="c">## Animations that repeat forever instead of playing once.</span>
+const LOOPING := ["idle", "run"]
+<span class="c">## Animations whose hips must also stay at one height, because player.gd already moves the body up and down.</span>
+const LOCK_HEIGHT := ["jump"]
+
+func _post_import(scene: Node) -&gt; Object:
+    var anim_name := get_source_file().get_file().get_basename()
+    var anim_player: AnimationPlayer = scene.get_node("AnimationPlayer")
+    var anim: Animation = anim_player.get_animation("mixamo_com").duplicate()
+
+    if anim_name in LOOPING:
+        anim.loop_mode = Animation.LOOP_LINEAR
+    _keep_in_place(anim, anim_name in LOCK_HEIGHT)
+
+    DirAccess.make_dir_recursive_absolute("res://character/animations")
+    ResourceSaver.save(anim, "res://character/animations/%s.res" % anim_name)
+
+    _pose_first_frame(scene.get_node("Skeleton3D"), anim)
+
+<span class="c">    # The Player has its own AnimationPlayer, and Tinkercad leaves some empty meshes behind.</span>
+    for child in scene.get_children():
+        if child is AnimationPlayer or (child is MeshInstance3D and child.mesh == null):
+            scene.remove_child(child)
+            child.free()
+    return scene
+
+<span class="c">## Stands the model in the clip's first pose. Otherwise the editor shows Mixamo's T-pose, half in the floor.</span>
+func _pose_first_frame(skeleton: Skeleton3D, anim: Animation) -&gt; void:
+    for track in anim.get_track_count():
+        var bone := skeleton.find_bone(String(anim.track_get_path(track).get_subname(0)))
+        if bone == -1:
+            continue
+        var value = anim.track_get_key_value(track, 0)
+        match anim.track_get_type(track):
+            Animation.TYPE_POSITION_3D:
+                skeleton.set_bone_pose_position(bone, value)
+            Animation.TYPE_ROTATION_3D:
+                skeleton.set_bone_pose_rotation(bone, value)
+            Animation.TYPE_SCALE_3D:
+                skeleton.set_bone_pose_scale(bone, value)
+
+<span class="c">## Pins the hips over the same spot so the model never walks away from its collider.</span>
+func _keep_in_place(anim: Animation, lock_height: bool) -&gt; void:
+    var track := anim.find_track(^"Skeleton3D:mixamorig_Hips", Animation.TYPE_POSITION_3D)
+    var start: Vector3 = anim.track_get_key_value(track, 0)
+    for i in anim.track_get_key_count(track):
+        var pos: Vector3 = anim.track_get_key_value(track, i)
+        pos.x = start.x
+        pos.z = start.z
+        if lock_height:
+            pos.y = start.y
+        anim.track_set_key_value(track, i, pos)</pre>
+  <div class="table-wrap"><table>
+    <tr><th>Part</th><th>What it does</th></tr>
+    <tr><td><code>@tool</code></td><td>Lets the script run inside the editor. Every import script needs it.</td></tr>
+    <tr><td><code>get_source_file()</code></td><td>The FBX being imported. <code>run.fbx</code> gives the name <code>run</code>.</td></tr>
+    <tr><td><code>"mixamo_com"</code></td><td>What every Mixamo animation is called inside the FBX.</td></tr>
+    <tr><td><code>ResourceSaver.save(…)</code></td><td>Writes the fixed animation to <code>character/animations/</code>.</td></tr>
+    <tr><td><code>_keep_in_place()</code></td><td>Copies the hips' first X/Z position (and for jump, the height too) into every keyframe.</td></tr>
+  </table></div>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p3_importscript.mp4" controls loop muted playsinline preload="metadata" title="Reading through the Mixamo import script"></video>
+    <figcaption>A tour of <code>mixamo_import.gd</code>: the two lists at the top, <code>_post_import()</code>, then the two helper functions.</figcaption>
+  </figure>
+
+  <h3>2b. Use it on the four FBX files</h3>
+  <ol>
+    <li>Click <code>idle.fbx</code> in FileSystem and open the <span class="ui">Import</span> tab (next to <span class="ui">Scene</span>, top left).</li>
+    <li>Scroll to the bottom. Under <span class="ui">Import Script → Path</span>, pick <code>res://scripts/mixamo_import.gd</code>.</li>
+    <li>Click <span class="ui">Reimport</span>.</li>
+    <li>Do the same for <code>run.fbx</code>, <code>jump.fbx</code> and <code>punch.fbx</code>. Or Shift-click to select all four and set it once.</li>
+  </ol>
+  <figure>
+    <img src="images/p3_import_dock.png" alt="The Import dock for idle.fbx with Import Script Path set to mixamo_import.gd" loading="lazy">
+    <figcaption>The <b>Import Script</b> field is at the bottom of the Import tab.</figcaption>
+  </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p3_import.mp4" controls loop muted playsinline preload="metadata" title="Setting the import script on each FBX and reimporting"></video>
+    <figcaption>Setting <b>Import Script</b> on each FBX and clicking <b>Reimport</b>. Afterwards, <code>character/animations/</code> holds the four clips.</figcaption>
+  </figure>
+  <figure>
+    <img src="images/p3_animations_folder.png" alt="FileSystem showing character/animations with idle.res, jump.res, punch.res and run.res" loading="lazy">
+    <figcaption>Four ready-to-use animations: <code>idle.res</code>, <code>jump.res</code>, <code>punch.res</code> and <code>run.res</code>.</figcaption>
+  </figure>
+  <div class="callout warn"><span class="label">Red "surfaces.is_empty()" errors?</span><p>These come from empty shapes that Tinkercad leaves in the model. They appear during the import, before the script removes those shapes. They're harmless and you can ignore them.</p></div>
+</section>
+
+<!-- STEP 3 -->
+<section class="step" id="s3">
+  <h2><span class="num">3</span>Swap in the new character</h2>
+  <p>Open <code>character/player.tscn</code>. Everything from Lesson 2 stays: only the model inside <b>Model</b> changes.</p>
+  <ol>
+    <li>Select the old model under <b>Model</b> (the knight, <code>character1</code>) and delete it.</li>
+    <li>Drag <code>character/mixamo/idle.fbx</code> from FileSystem onto <b>Model</b>. Rename the new node <code>Character</code> (double-click it).</li>
+    <li>Leave its scale and position alone. Mixamo exports in meters, so the character is already life-size (about 1.6 m).</li>
+    <li>Select <b>CollisionShape3D</b>, click the capsule, and set <b>Height</b> to <code>1.6</code>. Then set the CollisionShape3D's <span class="ui">Position Y</span> to <code>0.8</code> (half the height).</li>
+  </ol>
+  <figure>
+    <img src="images/p3_player_scene.png" alt="The Player scene with Character under Model; the Minecraft character stands inside its capsule" loading="lazy">
+    <figcaption>Any of the four FBX files would do as the model. They all contain the same character. We use <code>idle.fbx</code>.</figcaption>
+  </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p3_model.mp4" controls loop muted playsinline preload="metadata" title="Replacing the knight with the Mixamo character and fitting the capsule"></video>
+    <figcaption>Deleting the knight, dropping <code>idle.fbx</code> on Model as <b>Character</b>, and fitting the capsule to 1.6 m.</figcaption>
+  </figure>
+  <figure>
+    <img src="images/p3_capsule.png" alt="CapsuleShape3D with Height 1.6" loading="lazy">
+    <figcaption>The capsule now matches the new character: 1.6 m tall.</figcaption>
+  </figure>
+</section>
+
+<!-- STEP 4 -->
+<section class="step" id="s4">
+  <h2><span class="num">4</span>Give it an AnimationPlayer</h2>
+  <p>An <b>AnimationPlayer</b> holds animations and can play them. Here it's just the <b>library</b> of our four clips. In Step 6 the AnimationTree decides which one plays.</p>
+  <ol>
+    <li>Select <b>Model</b>, click <span class="ui">+</span>, search for <b>AnimationPlayer</b> and click <span class="ui">Create</span>.</li>
+    <li>In the Inspector, set <span class="ui">Root Node</span> to <code>Character</code>. It shows as <code>../Character</code>. The clips animate the skeleton inside Character, so the player must start looking from there.</li>
+    <li>In the <span class="ui">Animation</span> panel at the bottom, click <span class="ui">Animation → Manage Animations…</span></li>
+    <li>Click <span class="ui">New Library</span> and leave the name empty. That makes the <b>[Global]</b> library.</li>
+    <li>Click the <b>folder icon</b> on the [Global] row (Load Animation) and pick the four <code>.res</code> files in <code>character/animations/</code>.</li>
+  </ol>
+  <figure>
+    <img src="images/p3_root_node.png" alt="AnimationPlayer Inspector with Root Node set to Character" loading="lazy">
+    <figcaption><b>Root Node</b> points at Character.</figcaption>
+  </figure>
+  <figure>
+    <img src="images/p3_anim_library.png" alt="Edit Animation Libraries dialog listing idle, jump, punch and run in the Global library" loading="lazy">
+    <figcaption>The [Global] library with the four clips.</figcaption>
+  </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p3_animplayer.mp4" controls loop muted playsinline preload="metadata" title="Adding the AnimationPlayer, loading the clips and previewing run"></video>
+    <figcaption>Adding the AnimationPlayer, pointing it at Character, loading the four clips, then picking <b>run</b> and pressing play to preview it in the editor.</figcaption>
+  </figure>
+  <figure>
+    <img src="images/p3_run_preview.png" alt="The run animation previewing in the editor viewport" loading="lazy">
+    <figcaption>Previewing <b>run</b> right in the editor. Press the stop button before you move on, or the editor keeps playing it.</figcaption>
+  </figure>
+</section>
+
+<!-- STEP 5 -->
+<section class="step" id="s5">
+  <h2><span class="num">5</span>Add an attack action</h2>
+  <ol>
+    <li>Open <span class="ui">Project → Project Settings… → Input Map</span>.</li>
+    <li>Type <code>attack</code> in <span class="ui">Add New Action</span> and click <span class="ui">+ Add</span>.</li>
+    <li>Click the <span class="ui">+</span> on the attack row. In the dialog, open <span class="ui">Mouse Buttons</span>, pick <b>Left Mouse Button</b> and click <span class="ui">OK</span>. Clicking inside the "Listening for input" box works too.</li>
+  </ol>
+  <figure>
+    <img src="images/p3_input_map.png" alt="Input Map with the new attack action bound to Left Mouse Button" loading="lazy">
+    <figcaption>The new <code>attack</code> action: <b>Left Mouse Button – All Devices</b>.</figcaption>
+  </figure>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p3_inputmap.mp4" controls loop muted playsinline preload="metadata" title="Adding the attack action in the Input Map"></video>
+    <figcaption>Adding <code>attack</code> and choosing <b>Mouse Buttons → Left Mouse Button</b> in the event dialog.</figcaption>
+  </figure>
+</section>
+
+<!-- STEP 6 -->
+<section class="step" id="s6">
+  <h2><span class="num">6</span>Build the AnimationTree</h2>
+  <p>An AnimationPlayer plays <b>one</b> animation at a time. To punch <i>while</i> running, we need to <b>mix</b> two: the legs from run, the arms from punch. That's what an <b>AnimationTree</b> does. Here's the graph you'll build:</p>
+<pre>idle ───────────────┐
+run  ───────────────┤ movement ────┐
+jump ── jump_seek ──┘ (Transition) │ punch ──── Output
+punch_anim ────────────────────────┘ (OneShot, upper body only)</pre>
+  <div class="table-wrap"><table>
+    <tr><th>Node</th><th>Type</th><th>Job</th></tr>
+    <tr><td><code>idle</code>, <code>run</code>, <code>jump</code>, <code>punch_anim</code></td><td>Animation</td><td>Each one plays one clip.</td></tr>
+    <tr><td><code>jump_seek</code></td><td>TimeSeek</td><td>Lets the script start the jump part-way in, past the crouch.</td></tr>
+    <tr><td><code>movement</code></td><td>Transition</td><td>A switch: plays <b>one</b> of idle / run / jump, fading between them over 0.2 s.</td></tr>
+    <tr><td><code>punch</code></td><td>OneShot</td><td>Plays the punch <b>once</b> on top of <code>movement</code>, then fades back out.</td></tr>
+  </table></div>
+
+  <h3>6a. The node</h3>
+  <ol>
+    <li>Select <b>Model</b> and add an <b>AnimationTree</b>.</li>
+    <li>In the Inspector set <span class="ui">Anim Player</span> to the <b>AnimationPlayer</b>, <span class="ui">Root Node</span> to <b>Character</b>, and <span class="ui">Tree Root</span> to <b>New AnimationNodeBlendTree</b>.</li>
+    <li>Open the <span class="ui">AnimationTree</span> panel at the bottom. The expand button at its bottom right makes it bigger.</li>
+  </ol>
+  <figure>
+    <img src="images/p3_tree_inspector.png" alt="AnimationTree Inspector with Tree Root, Anim Player and Root Node set" loading="lazy">
+    <figcaption>The three AnimationTree settings.</figcaption>
+  </figure>
+
+  <h3>6b. The legs: idle, run and jump</h3>
+  <ol>
+    <li>Right-click an empty part of the graph (or click <span class="ui">Add Node…</span>) and pick <b>Animation</b>. Type <code>idle</code> into the name box at the top of the node, and pick <code>idle</code> in its animation drop-down. Do the same for <code>run</code> and <code>jump</code>.</li>
+    <li>Add a <b>TimeSeek</b> node, name it <code>jump_seek</code>, and connect <code>jump</code> into it.</li>
+    <li>Add a <b>Transition</b> node and name it <code>movement</code>. Click it, and in the Inspector set <span class="ui">Xfade Time</span> to <code>0.2</code>. Under <span class="ui">Inputs</span>, add three inputs named <code>idle</code>, <code>run</code> and <code>jump</code>.</li>
+    <li>Connect <code>idle</code> → movement's <b>idle</b>, <code>run</code> → <b>run</b>, and <code>jump_seek</code> → <b>jump</b>. Drag from a node's right-hand dot to the left-hand dot of the next one.</li>
+  </ol>
+  <div class="callout warn"><span class="label">Names matter here</span><p>The script talks to the tree by node name: <code>parameters/<b>movement</b>/transition_request</code>, <code>parameters/<b>jump_seek</b>/seek_request</code> and <code>parameters/<b>punch</b>/request</code>. The Transition inputs must be exactly <code>idle</code>, <code>run</code> and <code>jump</code>.</p></div>
+
+  <h3>6c. The punch on top</h3>
+  <ol>
+    <li>Add another Animation node, set it to <code>punch</code>, and name it <code>punch_anim</code>.</li>
+    <li>Add a <b>OneShot</b> node and name it <code>punch</code>. Set <span class="ui">Fadein Time</span> to <code>0.1</code> and <span class="ui">Fadeout Time</span> to <code>0.2</code>.</li>
+    <li>Connect <code>movement</code> → punch's <b>in</b>, <code>punch_anim</code> → punch's <b>shot</b>, and punch → <b>Output</b>.</li>
+  </ol>
+  <figure>
+    <img src="images/p3_animation_tree.png" alt="The finished blend tree: idle, run and jump into a Transition, then a OneShot with the punch into Output" loading="lazy">
+    <figcaption>The finished graph. Anything not connected to <b>Output</b> does nothing.</figcaption>
+  </figure>
+
+  <h3>6d. Upper body only: the filter</h3>
+  <p>Right now the punch would take over the <i>whole</i> body, legs included, so you'd stop running. A <b>filter</b> tells the OneShot which bones it's allowed to move.</p>
+  <ol>
+    <li>On the <b>punch</b> node, click <span class="ui">Edit Filters</span>.</li>
+    <li>Tick <span class="ui">Enable Filtering</span>, then tick <b>mixamorig_Spine</b> and every bone under it: Spine1, Spine2, Neck, Head, and both Shoulder, Arm, ForeArm and Hand.</li>
+    <li>Leave <b>Hips</b> and both legs <b>unticked</b>. Those bones keep playing idle, run or jump.</li>
+  </ol>
+  <figure>
+    <img src="images/p3_filters.png" alt="Edit Filtered Tracks dialog with the spine, neck, head and arm bones ticked and hips and legs unticked" loading="lazy">
+    <figcaption>Ticked bones play the punch; unticked bones keep doing what <code>movement</code> says.</figcaption>
+  </figure>
+  <div class="callout tip"><span class="label">Fast way to tick them</span><p>Select <b>mixamorig_Spine</b> and click <span class="ui">Fill Selected Children</span>. That ticks everything above the hips in one go.</p></div>
+
+  <h3>6e. Try it in the editor</h3>
+  <p>Select <b>AnimationTree</b> and open <span class="ui">Parameters</span> in the Inspector. Set <span class="ui">Movement → Transition Request</span> to <code>run</code>, then set <span class="ui">Punch → Request</span> to <b>Fire</b>. The character runs and punches right in the viewport.</p>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p3_tree.mp4" controls loop muted playsinline preload="metadata" title="Building the AnimationTree and trying it in the editor"></video>
+    <figcaption>Adding the AnimationTree, building the graph node by node, filtering the punch to the upper body, then trying <b>run</b> + <b>punch</b> from the Parameters.</figcaption>
+  </figure>
+  <figure>
+    <img src="images/p3_tree_preview.png" alt="In the editor, the character running while throwing a punch" loading="lazy">
+    <figcaption>Running and punching at once, in the editor.</figcaption>
+  </figure>
+</section>
+
+<!-- STEP 7 -->
+<section class="step" id="s7">
+  <h2><span class="num">7</span>Update the player script</h2>
+  <p>Open <code>scripts/player.gd</code>. Most of it is the same as Lesson 2. Change the highlighted lines:</p>
+  <p class="legend"><i></i>new or changed since Lesson 2</p>
+<pre>extends CharacterBody3D
+
+<span class="c">## Walking speed in meters per second.</span>
+@export var speed := 6.0
+<span class="c">## Upward speed when jumping. Higher number = higher jump.</span>
+@export var jump_velocity := 5.5
+<span class="c">## How fast the mouse turns the camera.</span>
+@export var mouse_sensitivity := 0.003
+<span class="c">## How fast the character turns to face the way it walks.</span>
+@export var turn_speed := 10.0
+<span class="hl"><span class="c">## Where the jump animation starts, skipping the crouch before the feet leave the ground.</span></span>
+<span class="hl">@export var jump_start_time := 0.7</span>
+
+var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+
+@onready var model: Node3D = $Model
+@onready var camera_pivot: Node3D = $CameraPivot
+@onready var spring_arm: SpringArm3D = $CameraPivot/SpringArm3D
+<span class="hl">@onready var anim_tree: AnimationTree = $Model/AnimationTree</span>
+
+func _ready() -&gt; void:
+<span class="c">    # Hide the mouse and lock it to the window so it can turn the camera.</span>
+    Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+<span class="c">    # Stop the camera arm from bumping into our own body.</span>
+    spring_arm.add_excluded_object(get_rid())
+
+func _unhandled_input(event: InputEvent) -&gt; void:
+<span class="c">    # Mouse left/right turns the pivot, mouse up/down tilts the arm.</span>
+    if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+        camera_pivot.rotate_y(-event.relative.x * mouse_sensitivity)
+        spring_arm.rotate_x(-event.relative.y * mouse_sensitivity)
+        spring_arm.rotation.x = clamp(spring_arm.rotation.x, deg_to_rad(-70), deg_to_rad(20))
+
+<span class="c">    # Esc shows the mouse again; clicking in the game hides it again.</span>
+    if event.is_action_pressed("ui_cancel"):
+        Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+<span class="hl">    elif event is InputEventMouseButton and event.pressed and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:</span>
+        Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+<span class="hl"><span class="c">    # Once the mouse is captured, a left click punches, even while running or jumping.</span></span>
+<span class="hl">    elif event.is_action_pressed("attack") and not anim_tree.get("parameters/punch/active"):</span>
+<span class="hl">        punch()</span>
+
+func _physics_process(delta: float) -&gt; void:
+<span class="c">    # Gravity pulls us down while we are in the air.</span>
+    if not is_on_floor():
+        velocity.y -= gravity * delta
+
+<span class="c">    # Jump only when standing on something.</span>
+    if Input.is_action_just_pressed("jump") and is_on_floor():
+        velocity.y = jump_velocity
+
+<span class="c">    # Turn WASD into a direction based on where the camera is looking.</span>
+    var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+    var direction := camera_pivot.global_basis * Vector3(input_dir.x, 0, input_dir.y)
+    direction.y = 0
+    direction = direction.normalized()
+
+    if direction:
+        velocity.x = direction.x * speed
+        velocity.z = direction.z * speed
+<span class="c">        # Smoothly turn the model to face the way we are walking.</span>
+        var target_angle := atan2(direction.x, direction.z)
+        model.global_rotation.y = lerp_angle(model.global_rotation.y, target_angle, turn_speed * delta)
+    else:
+        velocity.x = move_toward(velocity.x, 0, speed)
+        velocity.z = move_toward(velocity.z, 0, speed)
+
+    move_and_slide()
+<span class="hl">    update_animation()</span>
+
+<span class="hl"><span class="c">## Tells the AnimationTree what the legs should do: stand, run or jump.</span></span>
+<span class="hl">func update_animation() -&gt; void:</span>
+<span class="hl">    var state := "idle"</span>
+<span class="hl">    if not is_on_floor():</span>
+<span class="hl">        state = "jump"</span>
+<span class="hl">    elif Vector2(velocity.x, velocity.z).length() &gt; 0.1:</span>
+<span class="hl">        state = "run"</span>
+
+<span class="hl">    if anim_tree.get("parameters/movement/current_state") != state:</span>
+<span class="hl">        anim_tree.set("parameters/movement/transition_request", state)</span>
+<span class="hl"><span class="c">        # Skip the crouch at the start of the jump animation.</span></span>
+<span class="hl">        if state == "jump":</span>
+<span class="hl">            anim_tree.set("parameters/jump_seek/seek_request", jump_start_time)</span>
+
+<span class="hl"><span class="c">## Plays the punch on the upper body only, so the legs keep doing what they were doing.</span></span>
+<span class="hl">func punch() -&gt; void:</span>
+<span class="hl">    anim_tree.set("parameters/punch/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)</span></pre>
+  <h3>How it works</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Part</th><th>What it does</th></tr>
+    <tr><td><code>anim_tree</code></td><td>Finds the AnimationTree so the script can talk to it.</td></tr>
+    <tr><td><code>update_animation()</code></td><td>Runs after every <code>move_and_slide()</code>. In the air → <code>jump</code>, moving → <code>run</code>, otherwise <code>idle</code>. It only sends a <code>transition_request</code> when the state <i>changes</i>, so the animation doesn't restart every frame.</td></tr>
+    <tr><td><code>seek_request</code></td><td>When the jump starts, skips to <code>jump_start_time</code> (0.7 s), past the crouch, because the body is already in the air.</td></tr>
+    <tr><td><code>punch()</code></td><td>Fires the OneShot. It plays once on the upper body and fades out by itself.</td></tr>
+    <tr><td><code>parameters/punch/active</code></td><td>True while a punch is playing, so clicking again doesn't restart it halfway.</td></tr>
+    <tr><td>Mouse click logic</td><td>If the mouse is free (after <kbd>Esc</kbd>), the first click only captures it. Once captured, a left click punches.</td></tr>
+  </table></div>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p3_script.mp4" controls loop muted playsinline preload="metadata" title="The changes in player.gd"></video>
+    <figcaption>The new parts of <code>player.gd</code>, one block at a time.</figcaption>
+  </figure>
+  <figure>
+    <img src="images/p3_script_editor.png" alt="player.gd open in the script editor with update_animation highlighted" loading="lazy">
+    <figcaption><code>update_animation()</code> is the heart of it: it tells the tree what the legs should do.</figcaption>
+  </figure>
+</section>
+
+<!-- STEP 8 -->
+<section class="step" id="s8">
+  <h2><span class="num">8</span>Play it</h2>
+  <p>Press <kbd>F5</kbd>. Stand still, run, jump, and click to punch. Try punching <b>while holding W</b> and <b>while in the air</b>.</p>
+  <figure>
+    <span class="clip">▶ Watch</span>
+    <video src="videos/p3_play.mp4" controls loop muted playsinline preload="metadata" title="Gameplay: idle, run, jump and punching on the move"></video>
+    <figcaption>Recorded from the running game: running through the arena, a punch on the run, a punch in mid-air, and a standing punch.</figcaption>
+  </figure>
+</section>
+
+<!-- STEP 9 -->
+<section class="step" id="s9">
+  <h2><span class="num">9</span>Tuning</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Setting</th><th>Where</th><th>Default</th><th>Effect</th></tr>
+    <tr><td>Jump Start Time</td><td>Player (Inspector)</td><td>0.7</td><td>Where the jump animation starts. Lower shows more of the crouch; higher starts further into the leap.</td></tr>
+    <tr><td>Xfade Time</td><td>movement node</td><td>0.2</td><td>How long idle / run / jump take to fade into each other. 0 snaps instantly.</td></tr>
+    <tr><td>Fadein / Fadeout Time</td><td>punch node</td><td>0.1 / 0.2</td><td>How smoothly the punch starts and ends.</td></tr>
+    <tr><td>Filters</td><td>punch node → Edit Filters</td><td>Spine and up</td><td>Untick <b>Spine</b> and <b>Spine1</b> to keep the chest facing forward and only swing the arms.</td></tr>
+  </table></div>
+</section>
+
+<!-- STEP 10 -->
+<section class="step" id="s10">
+  <h2><span class="num">10</span>Troubleshooting</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Problem</th><th>Cause and fix</th></tr>
+    <tr><td>Mixamo says it can't rig the model</td><td>The arms touch the body, or the model isn't upright and facing front. Pose it in Tinkercad (Step 1a).</td></tr>
+    <tr><td><code>character/animations/</code> doesn't appear</td><td>The Import Script path isn't set, or you didn't click <b>Reimport</b> (Step 2b). Check the Output panel for script errors.</td></tr>
+    <tr><td>Error: <i>Node not found: "AnimationPlayer"</i> during import</td><td>That FBX has no animation. Download it again from Mixamo with an animation selected.</td></tr>
+    <tr><td>The character lies in the floor in the editor</td><td>It was imported before the import script was set. Reimport it (Step 2b).</td></tr>
+    <tr><td>The character doesn't move its arms or legs in the game</td><td>Check the AnimationTree's <b>Anim Player</b> and <b>Root Node</b> (Step 6a), and that every node is connected to <b>Output</b>.</td></tr>
+    <tr><td>The character stays in idle, or never punches, and there's no error</td><td>A node or input name in the tree doesn't match the script. The nodes must be <code>movement</code>, <code>jump_seek</code> and <code>punch</code>, and the Transition inputs <code>idle</code>, <code>run</code> and <code>jump</code>.</td></tr>
+    <tr><td>Punching stops the legs</td><td>The filter isn't enabled, or the legs are ticked (Step 6d).</td></tr>
+    <tr><td>Left click does nothing</td><td>Check the <code>attack</code> action (Step 5). The first click after <kbd>Esc</kbd> only captures the mouse.</td></tr>
+    <tr><td>The running model slides away and snaps back</td><td>The run wasn't "In Place" and wasn't fixed by the import script. Check that <code>run.fbx</code> uses the script and reimport it.</td></tr>
+  </table></div>
+</section>
+
+<!-- STEP 11 -->
+<section class="step" id="s11">
+  <h2><span class="num">11</span>Checklist and challenges</h2>
+  <h3>Before moving on, check that:</h3>
+  <ul class="check">
+    <li><code>character/animations/</code> holds <code>idle</code>, <code>run</code>, <code>jump</code> and <code>punch</code></li>
+    <li>The character stands inside its capsule in the editor</li>
+    <li>It idles when still, runs when moving, and uses the jump animation in the air</li>
+    <li>Left click punches, and you can keep running while punching</li>
+    <li>Punching in the air works too</li>
+  </ul>
+  <h3>Challenges</h3>
+  <ol>
+    <li><b>Quicker punch:</b> download a single punch from Mixamo (for example "Cross Punch") and save it over <code>punch.fbx</code>. Nothing else changes.</li>
+    <li><b>Kick:</b> add a <code>kick</code> action on the right mouse button, a kick animation, and a second OneShot. Should the kick filter take the legs instead of the arms?</li>
+    <li><b>Sprint:</b> in the Lesson 2 sprint challenge, speed the run animation up too, with a <b>TimeScale</b> node between <code>run</code> and <code>movement</code>.</li>
+    <li><b>Landing:</b> add a short landing animation that plays once when you touch the ground again.</li>
+  </ol>
+</section>
+
+<footer><a href="learning_part2.html">← Lesson 2: The Player</a> · 3D Boss Fight Multiplayer · Lesson 3: Animation · Godot 4.4</footer>
+</main>
+</div>
+
+</body>
+</html>

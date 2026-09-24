@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dnax3bxw17c6c"
-path="res://.godot/imported/character1.glb-844540e6e9c3be36bd7e7fed788c1e5a.scn"
+uid="uid://dbv41ff4tplhe"
+path="res://.godot/imported/run.fbx-420ea9f2e12785985e36528e13362c85.scn"
 
 [deps]
 
-source_file="res://character/character1.glb"
-dest_files=["res://.godot/imported/character1.glb-844540e6e9c3be36bd7e7fed788c1e5a.scn"]
+source_file="res://character/mixamo/run.fbx"
+dest_files=["res://.godot/imported/run.fbx-420ea9f2e12785985e36528e13362c85.scn"]
 
 [params]
 
@@ -28,10 +28,11 @@ meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=true
 animation/fps=30
-animation/trimming=false
+animation/trimming=true
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
-import_script/path=""
+import_script/path="res://scripts/mixamo_import.gd"
 _subresources={}
-gltf/naming_version=1
-gltf/embedded_image_handling=1
+fbx/importer=0
+fbx/allow_geometry_helper_nodes=false
+fbx/embedded_image_handling=1

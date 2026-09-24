@@ -1,24 +1,99 @@
-[gd_scene load_steps=4 format=3 uid="uid://duocmnlg7j46h"]
+[gd_scene load_steps=17 format=3 uid="uid://duocmnlg7j46h"]
 
 [ext_resource type="Script" uid="uid://bdjnptj7ymyrm" path="res://scripts/player.gd" id="1_script"]
-[ext_resource type="PackedScene" uid="uid://dnax3bxw17c6c" path="res://character/character1.glb" id="2_model"]
+[ext_resource type="PackedScene" uid="uid://ej841rnfsjjh" path="res://character/mixamo/idle.fbx" id="2_model"]
+[ext_resource type="Animation" path="res://character/animations/idle.res" id="3_idle"]
+[ext_resource type="Animation" path="res://character/animations/run.res" id="4_run"]
+[ext_resource type="Animation" path="res://character/animations/jump.res" id="5_jump"]
+[ext_resource type="Animation" path="res://character/animations/punch.res" id="6_punch"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.4
-height = 1.8
+height = 1.6
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_1"]
+_data = {
+&"idle": ExtResource("3_idle"),
+&"jump": ExtResource("5_jump"),
+&"punch": ExtResource("6_punch"),
+&"run": ExtResource("4_run")
+}
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_idle"]
+animation = &"idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_run"]
+animation = &"run"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_jump"]
+animation = &"jump"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_punch"]
+animation = &"punch"
+
+[sub_resource type="AnimationNodeTimeSeek" id="AnimationNodeTimeSeek_jump"]
+
+[sub_resource type="AnimationNodeTransition" id="AnimationNodeTransition_movement"]
+xfade_time = 0.2
+input_0/name = "idle"
+input_0/auto_advance = false
+input_0/break_loop_at_end = false
+input_0/reset = true
+input_1/name = "run"
+input_1/auto_advance = false
+input_1/break_loop_at_end = false
+input_1/reset = true
+input_2/name = "jump"
+input_2/auto_advance = false
+input_2/break_loop_at_end = false
+input_2/reset = true
+
+[sub_resource type="AnimationNodeOneShot" id="AnimationNodeOneShot_punch"]
+filter_enabled = true
+filters = ["Skeleton3D:mixamorig_Spine", "Skeleton3D:mixamorig_Spine1", "Skeleton3D:mixamorig_Spine2", "Skeleton3D:mixamorig_Neck", "Skeleton3D:mixamorig_Head", "Skeleton3D:mixamorig_HeadTop_End", "Skeleton3D:mixamorig_LeftShoulder", "Skeleton3D:mixamorig_LeftArm", "Skeleton3D:mixamorig_LeftForeArm", "Skeleton3D:mixamorig_LeftHand", "Skeleton3D:mixamorig_RightShoulder", "Skeleton3D:mixamorig_RightArm", "Skeleton3D:mixamorig_RightForeArm", "Skeleton3D:mixamorig_RightHand"]
+fadein_time = 0.1
+fadeout_time = 0.2
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_1"]
+nodes/idle/node = SubResource("AnimationNodeAnimation_idle")
+nodes/idle/position = Vector2(-400, 0)
+nodes/run/node = SubResource("AnimationNodeAnimation_run")
+nodes/run/position = Vector2(-400, 140)
+nodes/jump/node = SubResource("AnimationNodeAnimation_jump")
+nodes/jump/position = Vector2(-600, 280)
+nodes/jump_seek/node = SubResource("AnimationNodeTimeSeek_jump")
+nodes/jump_seek/position = Vector2(-400, 280)
+nodes/movement/node = SubResource("AnimationNodeTransition_movement")
+nodes/movement/position = Vector2(-160, 100)
+nodes/punch_anim/node = SubResource("AnimationNodeAnimation_punch")
+nodes/punch_anim/position = Vector2(-160, 320)
+nodes/punch/node = SubResource("AnimationNodeOneShot_punch")
+nodes/punch/position = Vector2(80, 140)
+nodes/output/position = Vector2(300, 140)
+node_connections = [&"output", 0, &"punch", &"punch", 0, &"movement", &"punch", 1, &"punch_anim", &"movement", 0, &"idle", &"movement", 1, &"run", &"movement", 2, &"jump_seek", &"jump_seek", 0, &"jump"]
 
 [node name="Player" type="CharacterBody3D"]
 script = ExtResource("1_script")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 shape = SubResource("CapsuleShape3D_1")
 
 [node name="Model" type="Node3D" parent="."]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
 
-[node name="character1" parent="Model" instance=ExtResource("2_model")]
-transform = Transform3D(0.025, 0, 0, 0, 0.025, 0, 0, 0, 0.025, -0.12, 0, 0.42)
+[node name="Character" parent="Model" instance=ExtResource("2_model")]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Model"]
+root_node = NodePath("../Character")
+libraries = {
+&"": SubResource("AnimationLibrary_1")
+}
+
+[node name="AnimationTree" type="AnimationTree" parent="Model"]
+root_node = NodePath("../Character")
+tree_root = SubResource("AnimationNodeBlendTree_1")
+anim_player = NodePath("../AnimationPlayer")
 
 [node name="CameraPivot" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)

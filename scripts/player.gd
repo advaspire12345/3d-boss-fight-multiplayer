@@ -8,12 +8,15 @@ extends CharacterBody3D
 @export var mouse_sensitivity := 0.003
 ## How fast the character turns to face the way it walks.
 @export var turn_speed := 10.0
+## Where the jump animation starts, skipping the crouch before the feet leave the ground.
+@export var jump_start_time := 0.7
 
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 @onready var model: Node3D = $Model
 @onready var camera_pivot: Node3D = $CameraPivot
 @onready var spring_arm: SpringArm3D = $CameraPivot/SpringArm3D
+@onready var anim_tree: AnimationTree = $Model/AnimationTree
 
 
 func _ready() -> void:
@@ -33,8 +36,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	# Esc shows the mouse again; clicking in the game hides it again.
 	if event.is_action_pressed("ui_cancel"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	elif event is InputEventMouseButton and event.pressed:
+	elif event is InputEventMouseButton and event.pressed and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	# Once the mouse is captured, a left click punches, even while running or jumping.
+	elif event.is_action_pressed("attack") and not anim_tree.get("parameters/punch/active"):
+		punch()
 
 
 func _physics_process(delta: float) -> void:
@@ -63,3 +69,24 @@ func _physics_process(delta: float) -> void:
 		velocity.z = move_toward(velocity.z, 0, speed)
 
 	move_and_slide()
+	update_animation()
+
+
+## Tells the AnimationTree what the legs should do: stand, run or jump.
+func update_animation() -> void:
+	var state := "idle"
+	if not is_on_floor():
+		state = "jump"
+	elif Vector2(velocity.x, velocity.z).length() > 0.1:
+		state = "run"
+
+	if anim_tree.get("parameters/movement/current_state") != state:
+		anim_tree.set("parameters/movement/transition_request", state)
+		# Skip the crouch at the start of the jump animation.
+		if state == "jump":
+			anim_tree.set("parameters/jump_seek/seek_request", jump_start_time)
+
+
+## Plays the punch on the upper body only, so the legs keep doing what they were doing.
+func punch() -> void:
+	anim_tree.set("parameters/punch/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
